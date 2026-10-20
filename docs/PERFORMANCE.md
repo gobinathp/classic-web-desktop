@@ -12,7 +12,7 @@
 
 ## Size budgets
 
-`npm run check:size` fails above 12,000 gzip bytes for library JS, 6,000 for CSS, or 110,000 for full-demo JS. These are transfer-size budgets, not heap limits. Both ESM and CommonJS are provided but consumers normally load only one.
+`npm run check:size` fails above 12,000 gzip bytes for library JS, 6,500 for combined CSS, or 110,000 for full-demo JS. These are transfer-size budgets, not heap limits. Both ESM and CommonJS are provided but consumers normally load only one.
 
 ## How to measure a real host
 
@@ -21,3 +21,11 @@ Build a production app, close unrelated tabs/extensions, record browser/version/
 Use CPU throttling to investigate sluggish interactions, but do not present it as a substitute for testing real old hardware. Supply representative data; the demo's 240 rows are not a large-dataset benchmark. Test zoom, resized containers, keyboard-only controls and touch inputs.
 
 This release has no verified minimum RAM specification and no claim that it supports obsolete, unpatched browsers. The validation report records actual checks rather than estimates.
+
+## v0.2 modular controls
+
+The desktop and modern controls each have their own JS and CSS entry points. Root imports remain tree-shakeable with a modern ESM bundler; the size check verifies a Button-only consumer stays below 1 KB gzip, excluding React and CSS. Desktop-only JS has a separate 5 KB gzip ceiling, and desktop CSS a 3 KB ceiling.
+
+Inactive tabs and collapsed disclosure branches unmount their contents. Closed modal dialogs/drawers unmount. ToastViewport mounts only the last three entries; the demo also bounds its caller-owned queue. Native datalist suggestions cap at 100, and static skeletons cap at 10 lines. File selection does not decode or preview files. Optional table sorting copies and sorts the supplied array; use server-side preparation for large data.
+
+`ComponentTheme` controls density only; it does not allocate a global store or persist preferences. The enlarged component catalog adds no runtime dependency. Development-only axe tooling checks a representative showcase; it is not shipped in the library.

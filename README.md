@@ -1,8 +1,14 @@
 # Classic Web Desktop
 
-An original, compact React desktop shell inspired by the classic blue web desktop era. Built by **Gobinath Palanisamy** for developers who want reusable windows, a taskbar, a launcher, and simple application components.
+A lightweight **React + TypeScript desktop and component toolkit** with classic blue styling and modern interactions. Built by **Gobinath Palanisamy** for developers creating internal tools, dashboards, and reusable desktop-style web applications.
 
-**Early release · v0.1.0 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
+**38 component exports · No additional runtime dependencies beyond React · Modular imports · MIT**
+
+[Component catalog](docs/COMPONENTS.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md) · [Performance](docs/PERFORMANCE.md) · [Validation](docs/VALIDATION.md)
+
+Our principles: keep the familiar desktop aesthetic, prioritize safe defaults, avoid unnecessary dependencies, and make the interface practical for modest hardware running maintained browsers.
+
+**Early release · v0.2.0 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
 
 ![Classic desktop demo](docs/desktop.png)
 
@@ -28,7 +34,7 @@ The npm name `@gobinathp/classic-web-desktop` is **proposed, not yet published o
 npm ci
 npm pack
 # In your React project:
-npm install /path/to/gobinathp-classic-web-desktop-0.1.0.tgz
+npm install /path/to/gobinathp-classic-web-desktop-0.2.0.tgz
 ```
 
 ```tsx
@@ -60,15 +66,32 @@ For Next.js, import the desktop from a client component (`'use client'`). React 
 
 ## Included components
 
-| Export | Purpose |
+| Category | Components |
 | --- | --- |
-| `Desktop` | Shortcut launcher, Start panel, taskbar, focus order, draggable/resizable windows |
-| `Button` | Classic button styling with standard button props |
-| `Panel` | Titled content section |
-| `Toolbar` | Labeled action group |
-| `DataGrid<T>` | Semantic, paginated table; up to 100 rendered rows per page |
+| Desktop & actions | Desktop, Button, IconButton, Panel, Toolbar, DataGrid |
+| Forms | TextField, TextArea, Select, Autocomplete, Checkbox, Switch, RadioGroup, Slider, DatePicker, FilePicker |
+| Navigation | Tabs, Accordion, Breadcrumbs, Pagination, Stepper, TreeView |
+| Display & feedback | Badge, Avatar, Card, Separator, Statistic, Progress, Skeleton, Alert, EmptyState |
+| Overlays & notifications | Tooltip, Popover, DropdownMenu, Dialog, Drawer, ToastViewport |
+| Styling | ComponentTheme |
 
-Demo apps: Welcome, Projects, Explorer, Notepad, Preferences, and About. The Explorer uses native disclosure controls. This is a desktop shell, not a replacement for all Ext JS widgets or a full operating system.
+Open **Component studio** in the demo to explore Overview, Forms, Navigation, Feedback, and Overlays. Compact and comfortable densities share the same classic theme. The Projects app demonstrates sorting and pagination.
+
+This is a broad foundational toolkit, not literally every possible widget. Rich-text editors, charts, maps, scheduling, and enterprise data grids belong in optional integrations rather than the small core. See the [roadmap](docs/ROADMAP.md).
+
+### Import only what you need
+
+```tsx
+// Desktop only: keep modern controls out of this entry point.
+import { Desktop } from '@gobinathp/classic-web-desktop/desktop';
+import '@gobinathp/classic-web-desktop/desktop.css';
+
+// Modern controls without mounting a desktop.
+import { ComponentTheme, TextField, Switch } from '@gobinathp/classic-web-desktop/components';
+import '@gobinathp/classic-web-desktop/components.css';
+```
+
+The root entry exports everything and supports ESM tree shaking. Use `styles.css` for all styling, or the two separate stylesheets for selective imports. Wrap standalone controls in `ComponentTheme` for typography, focus styles, and density. Button/Panel/Toolbar/DataGrid are part of the desktop entry and its stylesheet.
 
 ### Desktop API
 
@@ -87,7 +110,7 @@ An app has `id`, `title`, `render(context)`, optional `icon`, `initialSize`, `in
 
 ### DataGrid API
 
-Pass `rows`, `columns: { key, title, render(row) }[]`, `rowKey(row)`, `caption`, and optional `pageSize` (20 by default). Pagination limits mounted rows, not the memory of the input array. For large datasets, fetch/filter data on your server or in the host rather than passing millions of records.
+Pass `rows`, `columns: { key, title, render(row), sortValue?(row) }[]`, `rowKey(row)`, `caption`, and optional `pageSize` (20 by default). Columns with `sortValue` get sortable headers with `aria-sort`. Sorting is opt-in and copies/sorts the full input array. Pagination limits mounted rows, not the memory of the input array. For large datasets, fetch/filter data on your server or in the host rather than passing millions of records.
 
 ### Keyboard and touch
 
@@ -103,7 +126,7 @@ No additional runtime packages beyond the React peer. No polling, telemetry, ext
 
 The target is modest hardware running a maintained browser, **not every historical computer or browser**. ES2020, Pointer Events, CSS custom properties, and modern React are required; IE is unsupported. The demo targets Chromium, Firefox, and Safari, but see [validation](docs/VALIDATION.md) for what was actually tested. Touch hit targets are enlarged, and windows clamp to their container. Phone use is functional but the workspace is primarily designed for desktops/tablets.
 
-Run `npm run check:size` for compressed transfer sizes. **Download size is not RAM consumption.** Total memory depends on the browser, React, the app components, data, and active windows. No fixed RAM or universal-device guarantee is made. See [performance](docs/PERFORMANCE.md).
+Run `npm run check:size` for compressed transfer sizes. **Download size is not RAM consumption.** Inactive tabs, closed disclosure content, and closed overlays unmount. Notifications are capped at three mounted entries. Native modal dialogs require a browser with `HTMLDialogElement.showModal()` support. Total memory depends on the browser, React, the app components, data, and active windows. No fixed RAM or universal-device guarantee is made. See [performance](docs/PERFORMANCE.md).
 
 ## Security
 
@@ -121,4 +144,4 @@ npm audit
 npm pack --dry-run
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [release setup](docs/RELEASING.md), and [validation](docs/VALIDATION.md). Keep runtime dependencies minimal, test window lifecycle changes, and keep gzipped library JS under 12 KB and CSS under 6 KB. Open a pull request for changes.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [release setup](docs/RELEASING.md), and [validation](docs/VALIDATION.md). Keep runtime dependencies minimal, test window lifecycle changes, and keep gzipped library JS under 12 KB and CSS under 6.5 KB (combined stylesheet). Desktop-only JS remains capped at 5 KB gzip and CSS at 3 KB. Open a pull request for changes.

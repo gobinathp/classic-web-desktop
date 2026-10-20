@@ -2,7 +2,7 @@
 
 ## Scope
 
-Version 0.1.x is an early release. Security-focused engineering is not a security certification or penetration test. Keep the library, React, browsers, and host application patched.
+Versions 0.1.x–0.2.x is an early release. Security-focused engineering is not a security certification or penetration test. Keep the library, React, browsers, and host application patched.
 
 ## Trust boundaries
 
@@ -23,3 +23,7 @@ GitHub workflow permissions are limited by job. CI tests pull requests without p
 ## Reporting
 
 Use GitHub's private vulnerability reporting on this repository if the owner has enabled it. Otherwise open a minimal issue requesting a private contact **without exploit details or sensitive data**. Do not post credentials, customer information, or detailed exploits publicly. No guaranteed response SLA is currently offered.
+
+## Modern controls
+
+FilePicker selects files but does not read or upload them; accept filters are not server validation. Autocomplete accepts free text and renders at most 100 suggestions. Dialog/Drawer use the browser modal top layer, not a separate security origin. Inline popovers/menus/tooltips remain within the host layout. No arbitrary plugin, HTML-string, or script execution is introduced. Inactive tabs, collapsed sections and closed overlays unmount; the host still owns descriptors and data.

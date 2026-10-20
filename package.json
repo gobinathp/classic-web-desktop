@@ -1,7 +1,7 @@
 {
   "name": "@gobinathp/classic-web-desktop",
-  "version": "0.1.0",
-  "description": "A compact, accessible React desktop shell with an original classic blue theme.",
+  "version": "0.2.0",
+  "description": "Lightweight React desktop and component toolkit with classic styling, modern controls, TypeScript, and no extra runtime dependencies.",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -15,7 +15,19 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./desktop": {
+      "types": "./dist/desktop.d.ts",
+      "import": "./dist/desktop.js",
+      "require": "./dist/desktop.cjs"
+    },
+    "./desktop.css": "./dist/desktop.css",
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
+    },
+    "./components.css": "./dist/components.css"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -49,6 +61,7 @@
     "react": "^18.2.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@playwright/test": "1.64.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -56,5 +69,20 @@
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "typescript": "7.0.2"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "component-library",
+    "desktop-ui",
+    "web-desktop",
+    "lightweight",
+    "classic-ui",
+    "accessible-components",
+    "window-manager"
+  ],
+  "author": "Gobinath Palanisamy",
+  "bugs": {
+    "url": "https://github.com/gobinathp/classic-web-desktop/issues"
   }
 }

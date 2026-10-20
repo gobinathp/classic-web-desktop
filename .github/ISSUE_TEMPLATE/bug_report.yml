@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a reproducible component or desktop issue.
+title: "[Bug]: "
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Component/version, minimal steps or a small code example. Do not include secrets or customer data.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, operating system, React version
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Accessibility or performance impact
+      description: Include measurements and hardware details if relevant; distinguish download size from RAM usage.

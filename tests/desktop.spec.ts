@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 test('opens, minimizes, releases contents, restores and closes; no external requests', async ({ page }) => {
   const errors: string[] = [], external: string[] = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -64,4 +65,81 @@ test('start launcher keyboard dismissal and repeated open-close do not accumulat
     await page.getByRole('button', { name: 'Close Notepad' }).click();
   }
   expect(await page.locator('*').count()).toBe(before);
+});
+
+test('component tabs implement keyboard activation and unmount inactive forms', async ({ page }) => {
+  await page.goto('/');
+  const overview = page.getByRole('tab', { name: 'Overview', exact: true });
+  await overview.focus(); await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab', { name: 'Forms', exact: true })).toBeFocused();
+  await expect(page.getByLabel('Display name', { exact: true })).toHaveValue('Gobinath');
+  await page.getByLabel('Display name', { exact: true }).fill('');
+  await expect(page.getByLabel('Display name', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+  await page.getByRole('switch', { name: 'Enable notifications', exact: true }).uncheck();
+  await expect(page.getByRole('switch', { name: 'Enable notifications', exact: true })).not.toBeChecked();
+  await page.getByRole('tab', { name: 'Navigation', exact: true }).click();
+  await expect(page.getByLabel('Display name', { exact: true })).toHaveCount(0);
+  await page.getByRole('tab', { name: 'Forms', exact: true }).click();
+  await expect(page.getByLabel('Display name', { exact: true })).toHaveValue('Gobinath');
+});
+test('modal dialog traps focus, Escape closes and returns focus', async ({ page }) => {
+  await page.goto('/'); await page.getByRole('tab', { name: 'Overlays', exact: true }).click();
+  const trigger = page.getByRole('button', { name: 'Open dialog', exact: true });
+  await trigger.click();
+  const modal = page.getByRole('dialog', { name: 'Create workspace', exact: true });
+  await expect(modal).toBeVisible();
+  await expect(page.getByLabel('Workspace name', { exact: true })).toBeFocused();
+  for (let i = 0; i < 7; i++) { await page.keyboard.press('Tab'); expect(await modal.evaluate(el => el.contains(document.activeElement))).toBe(true); }
+  await page.keyboard.press('Escape'); await expect(modal).toHaveCount(0); await expect(trigger).toBeFocused();
+  await page.getByRole('button', { name: 'Open drawer', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Workspace details', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape'); await expect(page.getByRole('button', { name: 'Open drawer', exact: true })).toBeFocused();
+});
+test('menu skips disabled actions, supports keyboard and popover dismissal', async ({ page }) => {
+  await page.goto('/'); await page.getByRole('tab', { name: 'Overlays', exact: true }).click();
+  const trigger = page.getByRole('button', { name: 'Project actions' });
+  await trigger.focus(); await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('menuitem', { name: 'Open project', exact: true })).toBeFocused();
+  await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('menuitem', { name: 'Archive project', exact: true })).toBeFocused();
+  await page.keyboard.press('Home'); await page.keyboard.press('Enter');
+  await expect(page.getByRole('menu')).toHaveCount(0); await expect(trigger).toBeFocused();
+  await expect(page.getByText('Open selected', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Workspace info', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Workspace info', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape'); await expect(page.getByRole('region', { name: 'Workspace info', exact: true })).toHaveCount(0);
+});
+test('notifications stay capped and tree/accordion children mount on demand', async ({ page }) => {
+  await page.goto('/'); await page.getByRole('tab', { name: 'Feedback', exact: true }).click();
+  for (let i = 0; i < 8; i++) await page.getByRole('button', { name: 'Add notification', exact: true }).click();
+  await expect(page.locator('.cwd-toast')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Dismiss Notification 8', exact: true }).click();
+  await expect(page.locator('.cwd-toast')).toHaveCount(2);
+  await page.getByRole('tab', { name: 'Navigation', exact: true }).click();
+  const folders = page.getByRole('navigation', { name: 'Sample folders', exact: true });
+  await expect(folders.getByRole('button', { name: 'Projects', exact: true })).toHaveCount(0);
+  await folders.locator('summary').first().click();
+  await expect(folders.getByRole('button', { name: 'Projects', exact: true })).toBeVisible();
+  await folders.locator('summary').first().click();
+  await expect(folders.getByRole('button', { name: 'Projects', exact: true })).toHaveCount(0);
+});
+test('table sorts with accessible column state before pagination', async ({ page }) => {
+  await page.goto('/'); await page.getByRole('navigation', { name: 'Open windows' }).getByRole('button', { name: 'Projects', exact: true }).click();
+  const header = page.getByRole('columnheader').first();
+  await header.getByRole('button').click(); await expect(header).toHaveAttribute('aria-sort', 'ascending');
+  await header.getByRole('button').click(); await expect(header).toHaveAttribute('aria-sort', 'descending');
+  await expect(page.locator('tbody tr').first().locator('td').first()).toHaveText('240');
+  await expect(page.locator('tbody tr')).toHaveCount(20);
+});
+
+ test('component studio has no detected WCAG A/AA violations in each category', async ({ page }) => {
+  await page.goto('/');
+  for (const category of ['Overview', 'Forms', 'Navigation', 'Feedback', 'Overlays']) {
+    await page.getByRole('tab', { name: category, exact: true }).click();
+    const result = await new AxeBuilder({ page }).include('[data-window="components"]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) })), category).toEqual([]);
+  }
+  await page.getByRole('button', { name: 'Open dialog', exact: true }).click();
+  const result = await new AxeBuilder({ page }).include('.cwd-modal').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(result.violations.map(v => v.id)).toEqual([]);
 });

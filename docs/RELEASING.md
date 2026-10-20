@@ -8,7 +8,7 @@ Run the workflow manually or push to main after enabling Pages. Review its resul
 
 ## npm (not published yet)
 
-The package currently uses the proposed name `@gobinathp/classic-web-desktop`. Confirm that the npm user or organization owns that scope; GitHub identity does not establish npm ownership. If necessary update package.json, package-lock.json, README imports and links before publishing.
+The package currently uses the proposed name `@gobinathp/classic-web-desktop`. Confirm that the npm user or organization owns that scope; GitHub identity does not establish npm ownership. If necessary update package.json, package-lock.json, README imports and links before publishing. See REPOSITORY-ABOUT.md for the prepared About description and topics.
 
 1. Create/verify the npm account and enable 2FA.
 2. Run all checks and inspect `npm pack --dry-run`.
