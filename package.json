@@ -1,0 +1,60 @@
+{
+  "name": "@gobinathp/classic-web-desktop",
+  "version": "0.1.0",
+  "description": "A compact, accessible React desktop shell with an original classic blue theme.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gobinathp/classic-web-desktop.git"
+  },
+  "homepage": "https://gobinathp.github.io/classic-web-desktop/",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/model.test.ts",
+    "test:browser": "playwright test",
+    "check:size": "node scripts/size.mjs",
+    "check": "npm run typecheck && npm test && npm run build && npm run check:size",
+    "preview": "node scripts/serve.mjs",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "esbuild": "0.28.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "typescript": "7.0.2"
+  }
+}
