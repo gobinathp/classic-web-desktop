@@ -1,3 +1,4 @@
+import { useFloating } from './floating';
 import { useDesktopConfiguration, positiveInteger } from './config';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
@@ -88,21 +89,26 @@ export function TreeView({ nodes, label, onSelect }: { nodes: readonly TreeNode[
 export function Tooltip({ label, text }: { label: string; text: string }) {
   const { icons } = useDesktopConfiguration();
   const id = useId(), [open, setOpen] = useState(false);
-  return <span className="cwd-tooltip" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}><button type="button" className="cwd-icon-button" aria-label={label} aria-describedby={open ? id : undefined} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onClick={() => setOpen(v => !v)} onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); } }}>{icons.help}</button>{open && <span id={id} role="tooltip">{text}</span>}</span>;
+  const root = useRef<HTMLSpanElement>(null), panel = useRef<HTMLSpanElement>(null), focused = useRef(false);
+  useFloating(open, root, panel);
+  return <span ref={root} className="cwd-tooltip" onMouseEnter={() => setOpen(true)} onMouseLeave={() => { if (!focused.current) setOpen(false); }}><button type="button" className="cwd-icon-button" aria-label={label} aria-describedby={open ? id : undefined} onFocus={() => { focused.current = true; setOpen(true); }} onBlur={() => { focused.current = false; setOpen(false); }} onClick={() => setOpen(true)} onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); } }}>{icons.help}</button>{open && <span ref={panel} id={id} role="tooltip">{text}</span>}</span>;
 }
 export function Popover({ label, children }: { label: string; children: ReactNode }) {
+  const panel = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLDivElement>(null), button = useRef<HTMLButtonElement>(null), uid = useId(), [open, setOpen] = useState(false);
+  useFloating(open, ref, panel);
   useEffect(() => {
     if (!open) return;
     const outside = (e: PointerEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
     document.addEventListener('pointerdown', outside); return () => document.removeEventListener('pointerdown', outside);
   }, [open]);
-  return <div className="cwd-popover" ref={ref} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }} onKeyDown={e => { if (e.key === 'Escape' && open) { e.stopPropagation(); setOpen(false); button.current?.focus(); } }}><button type="button" ref={button} aria-expanded={open} aria-controls={uid} onClick={() => setOpen(v => !v)}>{label}</button>{open && <div className="cwd-popover-content" id={uid} role="region" aria-label={label}>{children}</div>}</div>;
+  return <div className="cwd-popover" ref={ref} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }} onKeyDown={e => { if (e.key === 'Escape' && open) { e.stopPropagation(); setOpen(false); button.current?.focus(); } }}><button type="button" ref={button} aria-expanded={open} aria-controls={uid} onClick={() => setOpen(v => !v)}>{label}</button>{open && <div ref={panel} className="cwd-popover-content" id={uid} role="region" aria-label={label}>{children}</div>}</div>;
 }
 export interface MenuItem { id: string; label: string; onSelect: () => void; disabled?: boolean; danger?: boolean }
 export function DropdownMenu({ label, items }: { label: string; items: readonly MenuItem[] }) {
   const { icons } = useDesktopConfiguration();
   const [open, setOpen] = useState(false), root = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null), panel = useRef<HTMLDivElement>(null), uid = useId();
+  useFloating(open, root, panel);
   useEffect(() => {
     if (!open) return;
     panel.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();

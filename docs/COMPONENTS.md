@@ -73,7 +73,7 @@ Tabs unmount inactive panel content. Accordions and trees unmount collapsed chil
 
 Dialog and Drawer require `HTMLDialogElement.showModal()` and unmount when closed. Open state is controlled by the host. Background interaction is disabled by the browser while open, and focus returns to the opener on close. Escape requests `onOpenChange(false)`; the host must update its state. Dialog/Drawer are modal, while desktop windows remain nonmodal.
 
-Tooltip/Popover/DropdownMenu are inline, not portaled; they can be clipped by scroll containers. Place triggers with enough space. They are not arbitrary-position context menus. ToastViewport is in normal document flow; the host chooses its placement. Toast items have id,title,description?,tone?. Its configurable rendering cap (default three) does not constrain your external queue; keep your queue bounded too.
+Tooltip/Popover/DropdownMenu are inline, not portaled. They measure clipping ancestors and the viewport, flip vertically, constrain width and scroll when available height is limited. Hidden or fully clipped triggers still require the host to provide visible space. Set `--cwd-floating-max-width` to override the default 280px cap. They are not arbitrary-position context menus. ToastViewport is in normal document flow; the host chooses its placement. Toast items have id,title,description?,tone?. Its configurable rendering cap (default three) does not constrain your external queue; keep your queue bounded too.
 
 ## Example
 

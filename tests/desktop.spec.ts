@@ -172,3 +172,58 @@ test('customization updates branding, theme, layout, limits and hidden-content p
   await page.getByRole('button', { name: 'Fermer Notepad' }).click();
   await page.screenshot({ path: 'test-results/customization.png' });
 });
+
+test('review regressions: bounded overlays, hover/click tooltip and nonblank workspace', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('tab', { name: 'Overlays', exact: true }).click();
+  await page.getByRole('button', { name: 'Project actions' }).click();
+  const menu = page.getByRole('menu', { name: 'Project actions' });
+  const bounds = await page.locator('[data-window="components"] .cwd-window-content').boundingBox();
+  const box = await menu.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(bounds!.x);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(bounds!.x + bounds!.width);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(bounds!.y + bounds!.height);
+  await expect(page.getByRole('menuitem', { name: 'Duplicate project' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  const help = page.getByRole('button', { name: 'Overlay help' });
+  await help.hover(); await expect(page.getByRole('tooltip')).toBeVisible();
+  const tip = await page.getByRole('tooltip').boundingBox();
+  expect(tip!.width).toBeGreaterThan(100);
+  expect(tip!.x).toBeGreaterThanOrEqual(bounds!.x);
+  await page.mouse.move(5, 5); await expect(page.getByRole('tooltip')).toHaveCount(0);
+  await help.click(); await expect(page.getByRole('tooltip')).toBeVisible();
+  await page.keyboard.press('Escape'); await expect(page.getByRole('tooltip')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Open dialog', exact: true }).click();
+  const name = page.getByRole('textbox', { name: 'Workspace name' });
+  await page.getByRole('button', { name: 'Create preview', exact: true }).click();
+  await expect(name).toHaveAttribute('aria-invalid', 'true');
+  await name.fill('   '); await page.keyboard.press('Enter');
+  await expect(page.getByText('Enter a workspace name.', { exact: true })).toBeVisible();
+  await name.fill('Team tools'); await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Create workspace', exact: true })).toHaveCount(0);
+  await expect(page.getByText('Workspace preview created: Team tools', { exact: true })).toBeVisible();
+});
+
+test('review regressions: stable taskbar, owner search, explorer and demo feedback', async ({ page }) => {
+  await page.goto('/');
+  const tasks = page.getByRole('navigation', { name: 'Open windows' });
+  const order = await tasks.getByRole('button').allTextContents();
+  await tasks.getByRole('button', { name: 'Welcome', exact: true }).click();
+  await tasks.getByRole('button', { name: 'Projects', exact: true }).click();
+  expect(await tasks.getByRole('button').allTextContents()).toEqual(order);
+  await page.getByRole('searchbox', { name: 'Find project' }).fill('Priya');
+  const rows = page.locator('[data-window="projects"] tbody tr');
+  await expect(rows).toHaveCount(20);
+  for (const owner of await rows.locator('td:nth-child(3)').allTextContents()) expect(owner).toBe('Priya');
+  await page.getByRole('button', { name: 'Start', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Start applications' }).getByRole('button', { name: 'Explorer' }).click();
+  const archive = page.locator('[data-window="explorer"] details').filter({ has: page.locator('summary', { hasText: 'Archive' }) });
+  await archive.locator('summary').click();
+  await expect(archive).toHaveAttribute('open', '');
+  expect(await archive.locator('summary').evaluate(el => getComputedStyle(el).listStyleType)).toBe('disclosure-open');
+  await page.locator('[data-window="explorer"]').getByRole('button', { name: 'Documents', exact: true }).click();
+  await expect(page.getByText('Documents selected — sample folder only.', { exact: true })).toBeVisible();
+  await tasks.getByRole('button', { name: 'Component studio', exact: true }).click();
+  await page.getByRole('button', { name: 'Primary action', exact: true }).click();
+  await expect(page.getByText('Primary action clicked — local demonstration only.', { exact: true })).toBeVisible();
+});

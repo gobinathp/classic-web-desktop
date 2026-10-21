@@ -8,7 +8,7 @@ A lightweight **React + TypeScript desktop and component toolkit** with classic 
 
 Our principles: keep the familiar desktop aesthetic, prioritize safe defaults, avoid unnecessary dependencies, and make the interface practical for modest hardware running maintained browsers.
 
-**Early release · v0.3.0 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
+**Early release · v0.3.1 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
 
 ![Classic desktop demo](docs/desktop.png)
 
@@ -34,7 +34,7 @@ The npm name `@gobinathp/classic-web-desktop` is **proposed, not yet published o
 npm ci
 npm pack
 # In your React project:
-npm install /path/to/gobinathp-classic-web-desktop-0.3.0.tgz
+npm install /path/to/gobinathp-classic-web-desktop-0.3.1.tgz
 ```
 
 ```tsx

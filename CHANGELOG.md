@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.1 — 2026-10-21
+
+- Keep menus, popovers and help tooltips inside clipping ancestors, reposition on resize/scroll/window movement, and scroll oversized panels.
+- Fix tooltip click/focus interaction; retain hover, keyboard focus and Escape support.
+- Preserve taskbar opening order independently of window stacking order.
+- Reject empty/whitespace workspace preview names, including Enter submission.
+- Search demo projects by name, owner and status; reset paging on search.
+- Use native Explorer disclosure arrows and show sample-action feedback.
+- Add browser regressions for all seven reported review issues.
+
+
 ## 0.3.0 — 2026-10-20
 
 - Add scoped DesktopProvider with partial translations, branding, icons, locale and configurable rendering budgets.

@@ -1,6 +1,6 @@
 export interface Rect { x: number; y: number; width: number; height: number }
 export interface Bounds { width: number; height: number }
-export interface WindowState { id: string; rect: Rect; minimized: boolean; maximized: boolean }
+export interface WindowState { id: string; taskOrder?: number; rect: Rect; minimized: boolean; maximized: boolean }
 export interface DesktopState { windows: WindowState[]; active: string | null }
 export interface GeometryPolicy { minWidth?: number; minHeight?: number; defaultWidth?: number; defaultHeight?: number; cascadeOrigin?: number; cascadeStep?: number; windowCeiling?: number }
 export type Action = (
@@ -27,7 +27,7 @@ export function reducer(state: DesktopState, action: Action): DesktopState {
       if (state.windows.length >= windowLimit(action.limit, action.policy?.windowCeiling)) return state;
       const offset = finite(action.policy?.cascadeOrigin ?? 24, 24) + state.windows.length * finite(action.policy?.cascadeStep ?? 28, 28);
       const rect = fitRect({ x: action.position?.x ?? offset, y: action.position?.y ?? offset, width: action.size?.width ?? action.policy?.defaultWidth ?? 480, height: action.size?.height ?? action.policy?.defaultHeight ?? 340 }, action.bounds, action.policy);
-      return { active: action.id, windows: [...state.windows, { id: action.id, rect, minimized: false, maximized: false }] };
+      return { active: action.id, windows: [...state.windows, { id: action.id, taskOrder: Math.max(-1, ...state.windows.map(w => w.taskOrder ?? 0)) + 1, rect, minimized: false, maximized: false }] };
     }
     case 'focus':
       if (!current || (state.active === action.id && !current.minimized)) return state;

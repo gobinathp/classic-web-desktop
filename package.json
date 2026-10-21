@@ -1,6 +1,6 @@
 {
   "name": "@gobinathp/classic-web-desktop",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Lightweight React desktop and component toolkit with classic styling, modern controls, TypeScript, and no extra runtime dependencies.",
   "type": "module",
   "license": "MIT",

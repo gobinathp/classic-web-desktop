@@ -195,7 +195,7 @@ export function Desktop({ apps, initialOpen = EMPTY, maxWindows, label, classNam
     </div>
     <footer className="cwd-taskbar">
       <button type="button" ref={startButton} className="cwd-start" aria-expanded={menu} aria-controls={menuId} onClick={() => setMenu(value => !value)}><span aria-hidden="true">{icons.start}</span> <strong>{m.start}</strong></button>
-      <nav className="cwd-tasks" aria-label={m.openWindows}>{state.windows.map(win => <button type="button" key={win.id} aria-pressed={state.active === win.id && !win.minimized} onClick={() => dispatch({ type: state.active === win.id && !win.minimized ? 'minimize' : 'focus', id: win.id })}>{appMap.get(win.id)?.title}</button>)}</nav>
+      <nav className="cwd-tasks" aria-label={m.openWindows}>{[...state.windows].sort((a, b) => (a.taskOrder ?? 0) - (b.taskOrder ?? 0)).map(win => <button type="button" key={win.id} aria-pressed={state.active === win.id && !win.minimized} onClick={() => dispatch({ type: state.active === win.id && !win.minimized ? 'minimize' : 'focus', id: win.id })}>{appMap.get(win.id)?.title}</button>)}</nav>
       <span className="cwd-tray" aria-label={m.windowCount(state.windows.length, limit)}>{state.windows.length} / {limit}</span>
     </footer>
     {menu && <div id={menuId} ref={launcher} className="cwd-launcher" onKeyDown={e => {
