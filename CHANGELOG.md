@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 — 2026-10-20
+
+- Add scoped DesktopProvider with partial translations, branding, icons, locale and configurable rendering budgets.
+- Expose window geometry, keyboard distance, lifecycle retention and layout options.
+- Add controlled DataGrid page/sort and modal styling, Escape policy and drawer side.
+- Add theme tokens and a live customization sample; preserve classic defaults and low-memory behavior.
+- Share configuration across root/subpath ESM and CommonJS imports; include its cost in bundle budgets.
+- Add configuration, escaping, package interoperability and customized desktop regression tests.
+
+
 ## 0.2.0 — 2026-10-20
 
 - Expand to 38 component exports: native form controls, tabs, disclosure navigation, cards, status displays, dialogs, drawers, menus, popovers, tooltips, and bounded notifications.

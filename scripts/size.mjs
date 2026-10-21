@@ -1,10 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
-const budgets = { 'dist/index.js': 12000, 'dist/desktop.js': 5000, 'dist/components.js': 8000, 'dist/styles.css': 6500, 'dist/desktop.css': 3000, 'dist/components.css': 4000, 'site/app.js': 110000 };
+const budgets = { 'dist/index.js': 12000, 'dist/desktop.js': 7000, 'dist/components.js': 8000, 'dist/styles.css': 7000, 'dist/desktop.css': 3500, 'dist/components.css': 4500, 'site/app.js': 110000 };
+console.log('JS budgets include the shared configuration module, excluding React.');
 let failed = false;
 for (const [file, budget] of Object.entries(budgets)) {
-  const contents = await readFile(file); const gzip = gzipSync(contents).length;
+  const contents = file.startsWith('dist/') && file.endsWith('.js')
+    ? (await build({ entryPoints: [file], bundle: true, write: false, format: 'esm', minify: true, external: ['react', 'react/*'] })).outputFiles[0].contents
+    : await readFile(file); const gzip = gzipSync(contents).length;
   console.log(`${file}: ${contents.length} bytes raw; ${gzip} bytes gzip (budget ${budget})`);
   if (gzip > budget) failed = true;
 }

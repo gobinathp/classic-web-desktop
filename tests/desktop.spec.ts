@@ -143,3 +143,32 @@ test('table sorts with accessible column state before pagination', async ({ page
   const result = await new AxeBuilder({ page }).include('.cwd-modal').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(result.violations.map(v => v.id)).toEqual([]);
 });
+
+test('customization updates branding, theme, layout, limits and hidden-content policy', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('navigation', { name: 'Desktop applications' }).getByRole('button', { name: 'Customization' }).click();
+  await page.getByLabel('Custom branding, green theme and French sample labels').check();
+  await expect(page.getByRole('button', { name: 'Démarrer', exact: true })).toBeVisible();
+  await expect(page.locator('.cwd-desktop')).toHaveAttribute('data-taskbar', 'top');
+  await expect(page.locator('.cwd-desktop')).toHaveAttribute('data-shortcuts', 'right');
+  await expect(page.locator('.cwd-watermark')).toHaveText('Mon espace');
+  expect(await page.locator('.cwd-surface').evaluate(el => getComputedStyle(el).backgroundImage)).toContain('50, 111, 99');
+  await page.getByLabel('Preserve hidden content').check();
+  await page.getByRole('button', { name: 'Fermer Customization' }).click();
+  await page.getByRole('navigation', { name: 'Open windows' }).getByRole('button', { name: 'Projects', exact: true }).click();
+  await expect(page.locator('[data-window="projects"] tbody tr')).toHaveCount(5);
+  await expect(page.getByRole('button', { name: 'Suivant' })).toBeVisible();
+  await page.getByRole('button', { name: 'Démarrer', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Start applications' }).getByRole('button', { name: 'Notepad' }).click();
+  await page.getByRole('textbox', { name: 'Scratchpad' }).fill('retained through minimize');
+  const note = page.locator('[data-window="notes"]');
+  const before = await note.boundingBox();
+  await note.focus(); await page.keyboard.press('Alt+ArrowRight');
+  expect((await note.boundingBox())!.x - before!.x).toBe(8);
+  await page.getByRole('button', { name: 'Minimize Notepad' }).click();
+  await expect(page.locator('textarea.notes')).toHaveCount(1);
+  await page.getByRole('navigation', { name: 'Open windows' }).getByRole('button', { name: 'Notepad' }).click();
+  await expect(page.getByRole('textbox', { name: 'Scratchpad' })).toHaveValue('retained through minimize');
+  await page.getByRole('button', { name: 'Fermer Notepad' }).click();
+  await page.screenshot({ path: 'test-results/customization.png' });
+});

@@ -54,3 +54,16 @@ test('resize clamps open windows to new viewport', () => {
   assert.ok(state.windows[0].rect.width <= 320);
   assert.ok(state.windows[0].rect.height <= 240);
 });
+
+test('custom geometry, cascade and resource ceiling override defaults safely', () => {
+  const policy = { minWidth: 100, minHeight: 80, defaultWidth: 180, defaultHeight: 120, cascadeOrigin: 3, cascadeStep: 7, windowCeiling: 40 };
+  let state = reducer(empty, { type: 'open', id: 'first', bounds, limit: 40, policy });
+  assert.deepEqual(state.windows[0].rect, { x: 3, y: 3, width: 180, height: 120 });
+  state = reducer(state, { type: 'open', id: 'second', bounds, limit: 40, policy });
+  assert.equal(state.windows[1].rect.x, 10);
+  assert.deepEqual(fitRect({ x: 0, y: 0, width: 2, height: 2 }, bounds, policy), { x: 0, y: 0, width: 100, height: 80 });
+  for (let i = 2; i < 42; i++) state = reducer(state, { type: 'open', id: String(i), bounds, limit: 40, policy });
+  assert.equal(state.windows.length, 40);
+  const invalid = fitRect({ x: NaN, y: Infinity, width: 0, height: 0 }, bounds, { minWidth: NaN, minHeight: Infinity });
+  assert.ok(Object.values(invalid).every(Number.isFinite));
+});

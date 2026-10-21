@@ -1,4 +1,4 @@
-# Component catalog — v0.2
+# Component catalog — v0.3
 
 All content is trusted React content. Text props render through React escaping. Components do not fetch, upload, store, or authenticate data. Import the corresponding CSS explicitly. Types are exported alongside components.
 
@@ -22,7 +22,7 @@ Use `ComponentTheme` around standalone controls. TextField/TextArea/Select link 
 | TextField | label, hint?, error?, native input props | Text/email/password/number/search/etc. |
 | TextArea | label, hint?, error?, native textarea props | Resizable multiline input |
 | Select | label, options, native select props | Options have value, label, disabled? |
-| Autocomplete | TextField props, options: string[] | Native datalist, first 100 suggestions, accepts free text |
+| Autocomplete | TextField props, options: string[] | Native datalist, first 100 suggestions by default, accepts free text |
 | Checkbox | label, native checkbox props | Controlled or uncontrolled |
 | Switch | label, native checkbox props | Checkbox with switch semantics |
 | RadioGroup | label, options, value, onChange, disabled? | Controlled native group |
@@ -68,12 +68,12 @@ Tabs unmount inactive panel content. Accordions and trees unmount collapsed chil
 | DropdownMenu | label, items | id,label,onSelect,disabled?,danger?; arrows/Home/End/initial-letter matching |
 | Dialog | open, onOpenChange, title, description?, children, footer? | Native modal with background inertness |
 | Drawer | same as Dialog | Native modal anchored to the right |
-| ToastViewport | items, onDismiss | Last three entries only; explicit dismiss, no timer |
+| ToastViewport | items, onDismiss | Last three entries by default; explicit dismiss, no timer |
 | ComponentTheme | children, density?, style? | compact or comfortable density; no persistence |
 
 Dialog and Drawer require `HTMLDialogElement.showModal()` and unmount when closed. Open state is controlled by the host. Background interaction is disabled by the browser while open, and focus returns to the opener on close. Escape requests `onOpenChange(false)`; the host must update its state. Dialog/Drawer are modal, while desktop windows remain nonmodal.
 
-Tooltip/Popover/DropdownMenu are inline, not portaled; they can be clipped by scroll containers. Place triggers with enough space. They are not arbitrary-position context menus. ToastViewport is in normal document flow; the host chooses its placement. Toast items have id,title,description?,tone?. Its three-item rendering cap does not constrain your external queue; keep your queue bounded too.
+Tooltip/Popover/DropdownMenu are inline, not portaled; they can be clipped by scroll containers. Place triggers with enough space. They are not arbitrary-position context menus. ToastViewport is in normal document flow; the host chooses its placement. Toast items have id,title,description?,tone?. Its configurable rendering cap (default three) does not constrain your external queue; keep your queue bounded too.
 
 ## Example
 
@@ -95,3 +95,5 @@ export function Preferences() {
   </ComponentTheme>;
 }
 ```
+
+Shared labels, icons, budgets and lifecycle defaults are configurable through `DesktopProvider`. See [configuration](CONFIGURATION.md) for controlled DataGrid state and modal/layout additions.

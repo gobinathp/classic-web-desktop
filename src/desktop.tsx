@@ -1,3 +1,4 @@
+import { useDesktopConfiguration, positiveInteger } from './config';
 import { Component, memo, useCallback, useEffect, useId, useMemo, useReducer, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, Dispatch, KeyboardEvent, PointerEvent, ReactNode } from 'react';
 import { fitRect, reducer, windowLimit } from './model';
@@ -23,6 +24,8 @@ export interface DesktopProps {
   label?: string;
   className?: string;
   style?: CSSProperties;
+  taskbarPosition?: 'top' | 'bottom';
+  shortcutsPosition?: 'left' | 'right' | 'hidden';
   /** Called without persisting any state internally. */
   onWindowsChange?: (windows: readonly WindowState[]) => void;
 }
@@ -30,10 +33,10 @@ const EMPTY: readonly string[] = [];
 const AppContent = /* @__PURE__ */ memo(function AppContent({ app, context }: { app: DesktopApp; context: AppContext }) {
   return <>{app.render(context)}</>;
 });
-class AppBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+class AppBoundary extends Component<{ children: ReactNode; message: string }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
-  render() { return this.state.failed ? <p role="alert" className="cwd-error">This app could not render. Close and reopen its window to retry.</p> : this.props.children; }
+  render() { return this.state.failed ? <p role="alert" className="cwd-error">{this.props.message}</p> : this.props.children; }
 }
 function paint(el: HTMLElement, r: Rect) {
   el.style.left = `${r.x}px`; el.style.top = `${r.y}px`;
@@ -42,6 +45,7 @@ function paint(el: HTMLElement, r: Rect) {
 function DesktopWindow({ app, win, active, order, bounds, dispatch }: {
   app: DesktopApp; win: WindowState; active: boolean; order: number; bounds: Bounds; dispatch: Dispatch<Action>;
 }) {
+  const { messages: m, behavior: b, icons } = useDesktopConfiguration();
   const ref = useRef<HTMLElement>(null);
   const titleId = useId();
   const hintId = useId();
@@ -68,7 +72,7 @@ function DesktopWindow({ app, win, active, order, bounds, dispatch }: {
     const g = gesture.current;
     if (!g || g.id !== e.pointerId) return;
     const dx = e.clientX - g.x, dy = e.clientY - g.y;
-    g.next = fitRect(g.resize ? { ...g.rect, width: g.rect.width + dx, height: g.rect.height + dy } : { ...g.rect, x: g.rect.x + dx, y: g.rect.y + dy }, bounds);
+    g.next = fitRect(g.resize ? { ...g.rect, width: g.rect.width + dx, height: g.rect.height + dy } : { ...g.rect, x: g.rect.x + dx, y: g.rect.y + dy }, bounds, b);
     if (!frame.current) frame.current = requestAnimationFrame(() => {
       frame.current = 0;
       if (ref.current && gesture.current) paint(ref.current, gesture.current.next);
@@ -84,47 +88,49 @@ function DesktopWindow({ app, win, active, order, bounds, dispatch }: {
   }
   function key(e: KeyboardEvent) {
     if (e.key === 'Escape' && gesture.current) { e.preventDefault(); finish(true); return; }
-    if (!e.altKey || e.ctrlKey || e.metaKey) return;
+    if (!b.keyboardEnabled || !e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.key === 'F4') { e.preventDefault(); context.close(); return; }
     if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) || win.maximized) return;
     e.preventDefault();
-    const dx = e.key === 'ArrowLeft' ? -16 : e.key === 'ArrowRight' ? 16 : 0;
-    const dy = e.key === 'ArrowUp' ? -16 : e.key === 'ArrowDown' ? 16 : 0;
+    const dx = e.key === 'ArrowLeft' ? -positiveInteger(b.keyboardStep, 16) : e.key === 'ArrowRight' ? positiveInteger(b.keyboardStep, 16) : 0;
+    const dy = e.key === 'ArrowUp' ? -positiveInteger(b.keyboardStep, 16) : e.key === 'ArrowDown' ? positiveInteger(b.keyboardStep, 16) : 0;
     dispatch({ type: 'rect', id: app.id, bounds, rect: e.shiftKey ? { ...win.rect, width: win.rect.width + dx, height: win.rect.height + dy } : { ...win.rect, x: win.rect.x + dx, y: win.rect.y + dy } });
   }
-  if (win.minimized && !app.keepAlive) return null;
+  if (win.minimized && !(app.keepAlive ?? b.keepMinimized)) return null;
   return <section ref={ref} role="dialog" aria-modal="false" aria-labelledby={titleId} aria-describedby={hintId} tabIndex={-1}
     hidden={win.minimized} className={`cwd-window${active ? ' cwd-active' : ''}`} data-window={app.id}
     style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height, zIndex: order + 1 }}
     onPointerDownCapture={() => dispatch({ type: 'focus', id: app.id })} onFocusCapture={() => dispatch({ type: 'focus', id: app.id })} onKeyDown={key}>
     <header className="cwd-titlebar" onPointerDown={e => start(e, false)} onPointerMove={move} onPointerUp={() => finish()} onPointerCancel={() => finish(true)} onLostPointerCapture={() => finish(true)}
-      onDoubleClick={e => { if (!(e.target as HTMLElement).closest('button')) dispatch({ type: 'maximize', id: app.id }); }}>
-      <span aria-hidden="true" className="cwd-title-icon">{app.icon ?? '▣'}</span><h2 id={titleId}>{app.title}</h2>
+      onDoubleClick={e => { if (b.doubleClickMaximize && !(e.target as HTMLElement).closest('button')) dispatch({ type: 'maximize', id: app.id }); }}>
+      <span aria-hidden="true" className="cwd-title-icon">{app.icon ?? icons.app}</span><h2 id={titleId}>{app.title}</h2>
       <div className="cwd-window-actions">
-        <button type="button" aria-label={`Minimize ${app.title}`} onClick={context.minimize}>_</button>
-        <button type="button" aria-label={`${win.maximized ? 'Restore' : 'Maximize'} ${app.title}`} onClick={() => dispatch({ type: 'maximize', id: app.id })}>{win.maximized ? '❐' : '□'}</button>
-        <button type="button" className="cwd-close" aria-label={`Close ${app.title}`} onClick={context.close}>×</button>
+        <button type="button" aria-label={m.minimize(app.title)} onClick={context.minimize}>{icons.minimize}</button>
+        <button type="button" aria-label={(win.maximized ? m.restore : m.maximize)(app.title)} onClick={() => dispatch({ type: 'maximize', id: app.id })}>{win.maximized ? icons.restore : icons.maximize}</button>
+        <button type="button" className="cwd-close" aria-label={m.close(app.title)} onClick={context.close}>{icons.close}</button>
       </div>
     </header>
-    <span id={hintId} className="cwd-sr">Alt and arrow keys move this window. Add Shift to resize. Use the title bar buttons to close, minimize, or maximize.</span>
-    <div className="cwd-window-content"><AppBoundary><AppContent app={app} context={context} /></AppBoundary></div>
+    <span id={hintId} className="cwd-sr">{b.keyboardEnabled ? m.keyboardHint : null}</span>
+    <div className="cwd-window-content"><AppBoundary message={m.appError}><AppContent app={app} context={context} /></AppBoundary></div>
     {!win.maximized && <div className="cwd-resize" aria-hidden="true" onPointerDown={e => start(e, true)} onPointerMove={move} onPointerUp={() => finish()} onPointerCancel={() => finish(true)} onLostPointerCapture={() => finish(true)} />}
   </section>;
 }
 
 /** Desktop owns window state only; app data and authentication remain with the host. */
-export function Desktop({ apps, initialOpen = EMPTY, maxWindows = 8, label = 'Classic desktop', className = '', style, onWindowsChange }: DesktopProps) {
+export function Desktop({ apps, initialOpen = EMPTY, maxWindows, label, className = '', style, onWindowsChange, taskbarPosition = 'bottom', shortcutsPosition = 'left' }: DesktopProps) {
+  const { messages: m, behavior: b, icons, branding } = useDesktopConfiguration();
   const root = useRef<HTMLDivElement>(null);
   const surface = useRef<HTMLDivElement>(null);
   const startButton = useRef<HTMLButtonElement>(null);
   const launcher = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const [bounds, setBounds] = useState<Bounds>({ width: 800, height: 560 });
-  const [state, dispatch] = useReducer(reducer, { windows: [], active: null } as DesktopState);
+  const [state, rawDispatch] = useReducer(reducer, { windows: [], active: null } as DesktopState);
+  const dispatch = useCallback((action: Action) => rawDispatch({ ...action, policy: b }), [b]);
   const [menu, setMenu] = useState(false);
   const [notice, setNotice] = useState('');
   const initialized = useRef(false);
-  const limit = windowLimit(maxWindows);
+  const limit = windowLimit(maxWindows ?? b.maxWindows, b.windowCeiling);
   const appMap = useMemo(() => {
     const map = new Map<string, DesktopApp>();
     for (const app of apps) {
@@ -155,15 +161,15 @@ export function Desktop({ apps, initialOpen = EMPTY, maxWindows = 8, label = 'Cl
     }
     window.addEventListener('resize', measure); return () => window.removeEventListener('resize', measure);
     // Initial windows are intentionally read once, at mount.
-  }, []);
-  useEffect(() => { dispatch({ type: 'sync', ids: [...appMap.keys()], limit }); }, [appMap, limit]);
+  }, [appMap, b, dispatch, initialOpen, limit]);
+  useEffect(() => { dispatch({ type: 'sync', ids: [...appMap.keys()], limit }); }, [appMap, limit, dispatch]);
   useEffect(() => { onWindowsChange?.(state.windows); }, [state.windows, onWindowsChange]);
   const open = useCallback((app: DesktopApp) => {
     if (state.windows.length >= limit && !state.windows.some(w => w.id === app.id)) {
-      setNotice(`Window limit reached (${limit}). Close a window before opening another.`);
+      setNotice(m.windowLimit(limit));
     } else { setNotice(''); dispatch({ type: 'open', id: app.id, bounds, limit, size: app.initialSize, position: app.initialPosition }); }
     setMenu(false);
-  }, [state.windows, limit, bounds]);
+  }, [state.windows, limit, bounds, m, dispatch]);
   useEffect(() => {
     if (!menu) return;
     launcher.current?.querySelector<HTMLButtonElement>('button')?.focus();
@@ -178,25 +184,25 @@ export function Desktop({ apps, initialOpen = EMPTY, maxWindows = 8, label = 'Cl
     if (previousActive.current && !state.active && (document.activeElement === document.body || root.current?.contains(document.activeElement))) startButton.current?.focus();
     previousActive.current = state.active;
   }, [state.active]);
-  return <div ref={root} className={`cwd-desktop ${className}`} style={style} role="region" aria-label={label}>
+  return <div ref={root} className={`cwd-desktop ${className}`} style={style} data-taskbar={taskbarPosition} data-shortcuts={shortcutsPosition} role="region" aria-label={label ?? m.desktop}>
     <div className="cwd-surface" ref={surface}>
-      <nav className="cwd-shortcuts" aria-label="Desktop applications">
-        {apps.map(app => <button type="button" key={app.id} onClick={() => open(app)}><span aria-hidden="true">{app.icon ?? '▣'}</span><span>{app.title}</span></button>)}
+      <nav className="cwd-shortcuts" aria-label={m.applications}>
+        {apps.map(app => <button type="button" key={app.id} onClick={() => open(app)}><span aria-hidden="true">{app.icon ?? icons.app}</span><span>{app.title}</span></button>)}
       </nav>
-      <div className="cwd-watermark" aria-hidden="true"><strong>classic<span>desktop</span></strong><small>A familiar place. A fresh foundation.</small></div>
+      <div className="cwd-watermark" aria-hidden="true">{branding.watermark}</div>
       {state.windows.map((win, order) => { const app = appMap.get(win.id); return app ? <DesktopWindow key={win.id} app={app} win={win} active={state.active === win.id} order={order} bounds={bounds} dispatch={dispatch} /> : null; })}
-      {notice && <div className="cwd-notice" role="status">{notice}<button type="button" onClick={() => setNotice('')} aria-label="Dismiss notification">×</button></div>}
+      {notice && <div className="cwd-notice" style={{ zIndex: limit + 1 }} role="status">{notice}<button type="button" onClick={() => setNotice('')} aria-label={m.dismissNotification}>{icons.close}</button></div>}
     </div>
     <footer className="cwd-taskbar">
-      <button type="button" ref={startButton} className="cwd-start" aria-expanded={menu} aria-controls={menuId} onClick={() => setMenu(value => !value)}><span aria-hidden="true">▦</span> <strong>Start</strong></button>
-      <nav className="cwd-tasks" aria-label="Open windows">{state.windows.map(win => <button type="button" key={win.id} aria-pressed={state.active === win.id && !win.minimized} onClick={() => dispatch({ type: state.active === win.id && !win.minimized ? 'minimize' : 'focus', id: win.id })}>{appMap.get(win.id)?.title}</button>)}</nav>
-      <span className="cwd-tray" aria-label={`${state.windows.length} of ${limit} windows open`}>{state.windows.length} / {limit}</span>
+      <button type="button" ref={startButton} className="cwd-start" aria-expanded={menu} aria-controls={menuId} onClick={() => setMenu(value => !value)}><span aria-hidden="true">{icons.start}</span> <strong>{m.start}</strong></button>
+      <nav className="cwd-tasks" aria-label={m.openWindows}>{state.windows.map(win => <button type="button" key={win.id} aria-pressed={state.active === win.id && !win.minimized} onClick={() => dispatch({ type: state.active === win.id && !win.minimized ? 'minimize' : 'focus', id: win.id })}>{appMap.get(win.id)?.title}</button>)}</nav>
+      <span className="cwd-tray" aria-label={m.windowCount(state.windows.length, limit)}>{state.windows.length} / {limit}</span>
     </footer>
     {menu && <div id={menuId} ref={launcher} className="cwd-launcher" onKeyDown={e => {
       if (e.key === 'Escape') { setMenu(false); startButton.current?.focus(); }
     }} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget !== startButton.current) setMenu(false); }}>
-      <div className="cwd-launcher-heading">Your workspace</div><nav aria-label="Start applications">{apps.map(app => <button type="button" key={app.id} onClick={() => open(app)}><span aria-hidden="true">{app.icon ?? '▣'}</span>{app.title}</button>)}</nav>
-      <div className="cwd-launcher-footer">Classic Web Desktop · React</div>
+      <div className="cwd-launcher-heading">{m.workspace}</div><nav aria-label={m.startApplications}>{apps.map(app => <button type="button" key={app.id} onClick={() => open(app)}><span aria-hidden="true">{app.icon ?? icons.app}</span>{app.title}</button>)}</nav>
+      <div className="cwd-launcher-footer">{branding.footer}</div>
     </div>}
   </div>;
 }
@@ -205,23 +211,29 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> { v
 export function Button({ className = '', type = 'button', variant = 'default', size = 'medium', loading = false, disabled, ...props }: ButtonProps) { return <button type={type} className={`cwd-button cwd-button-${variant} cwd-button-${size} ${className}`} disabled={disabled || loading} aria-busy={loading || undefined} {...props} />; }
 export function IconButton({ label, ...props }: Omit<ButtonProps, 'aria-label'> & { label: string }) { return <Button {...props} aria-label={label} className={`cwd-icon-only ${props.className ?? ''}`} />; }
 export function Panel({ title, children }: { title: string; children: ReactNode }) { return <section className="cwd-panel"><h3>{title}</h3><div>{children}</div></section>; }
-export function Toolbar({ children, label = 'Actions' }: { children: ReactNode; label?: string }) { return <div className="cwd-toolbar" role="group" aria-label={label}>{children}</div>; }
+export function Toolbar({ children, label }: { children: ReactNode; label?: string }) { const { messages } = useDesktopConfiguration(); return <div className="cwd-toolbar" role="group" aria-label={label ?? messages.actions}>{children}</div>; }
+export interface GridSort { key: string; direction: 1 | -1 }
 export interface GridColumn<T> { key: string; title: string; render: (row: T) => ReactNode; sortValue?: (row: T) => string | number }
 /** Paginated semantic table. Only one page of rows is mounted. Input data stays host-owned. */
-export function DataGrid<T>({ rows, columns, rowKey, pageSize = 20, caption }: { rows: readonly T[]; columns: readonly GridColumn<T>[]; rowKey: (row: T) => string; pageSize?: number; caption: string }) {
-  const [page, setPage] = useState(0);
-  const [sort, setSort] = useState<{ key: string; direction: 1 | -1 } | null>(null);
+export function DataGrid<T>({ rows, columns, rowKey, pageSize, caption, page: controlledPage, onPageChange, sort: controlledSort, onSortChange }: { rows: readonly T[]; columns: readonly GridColumn<T>[]; rowKey: (row: T) => string; pageSize?: number; caption: string; page?: number; onPageChange?: (page: number) => void; sort?: GridSort | null; onSortChange?: (sort: GridSort) => void }) {
+  const { messages: m, behavior: b, locale, icons } = useDesktopConfiguration();
+  const [internalPage, setInternalPage] = useState(0);
+  const page = Math.max(0, Math.floor(Number.isFinite(controlledPage ?? internalPage) ? controlledPage ?? internalPage : 0));
+  const setPage = (next: number) => { setInternalPage(next); onPageChange?.(next); };
+  const [internalSort, setInternalSort] = useState<GridSort | null>(null);
+  const sort = controlledSort === undefined ? internalSort : controlledSort;
+  const setSort = (next: GridSort) => { setInternalSort(next); onSortChange?.(next); };
   const sorted = useMemo(() => {
     const column = columns.find(c => c.key === sort?.key);
     if (!column?.sortValue || !sort) return rows;
     const value = column.sortValue;
     return [...rows].sort((a, b) => {
       const av = value(a), bv = value(b);
-      return (typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv))) * sort.direction;
+      return (typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv), locale)) * sort.direction;
     });
-  }, [rows, columns, sort]);
-  const size = Number.isFinite(pageSize) ? Math.max(1, Math.min(100, Math.floor(pageSize))) : 20;
+  }, [rows, columns, sort, locale]);
+  const size = Math.min(positiveInteger(pageSize ?? b.pageSize, 20), positiveInteger(b.maxPageSize, 100));
   const pages = Math.max(1, Math.ceil(rows.length / size));
   const current = Math.min(page, pages - 1);
-  return <div className="cwd-grid"><div className="cwd-table-scroll"><table><caption>{caption}</caption><thead><tr>{columns.map(col => <th scope="col" key={col.key} aria-sort={sort?.key === col.key ? (sort.direction === 1 ? 'ascending' : 'descending') : undefined}>{col.sortValue ? <button type="button" onClick={() => { setSort({ key: col.key, direction: sort?.key === col.key && sort.direction === 1 ? -1 : 1 }); setPage(0); }}>{col.title}<span aria-hidden="true"> {sort?.key === col.key ? (sort.direction === 1 ? '↑' : '↓') : '↕'}</span></button> : col.title}</th>)}</tr></thead><tbody>{sorted.slice(current * size, (current + 1) * size).map(row => <tr key={rowKey(row)}>{columns.map(col => <td key={col.key}>{col.render(row)}</td>)}</tr>)}</tbody></table>{rows.length === 0 && <p className="cwd-empty">No records.</p>}</div><div className="cwd-pager"><Button disabled={!current} onClick={() => setPage(current - 1)}>Previous</Button><span aria-live="polite">Page {current + 1} of {pages} · {rows.length} records</span><Button disabled={current === pages - 1} onClick={() => setPage(current + 1)}>Next</Button></div></div>;
+  return <div className="cwd-grid"><div className="cwd-table-scroll"><table><caption>{caption}</caption><thead><tr>{columns.map(col => <th scope="col" key={col.key} aria-sort={sort?.key === col.key ? (sort.direction === 1 ? 'ascending' : 'descending') : undefined}>{col.sortValue ? <button type="button" onClick={() => { setSort({ key: col.key, direction: sort?.key === col.key && sort.direction === 1 ? -1 : 1 }); setPage(0); }}>{col.title}<span aria-hidden="true"> {sort?.key === col.key ? (sort.direction === 1 ? icons.sortAscending : icons.sortDescending) : icons.sortNone}</span></button> : col.title}</th>)}</tr></thead><tbody>{sorted.slice(current * size, (current + 1) * size).map(row => <tr key={rowKey(row)}>{columns.map(col => <td key={col.key}>{col.render(row)}</td>)}</tr>)}</tbody></table>{rows.length === 0 && <p className="cwd-empty">{m.noRecords}</p>}</div><div className="cwd-pager"><Button disabled={!current} onClick={() => setPage(current - 1)}>{m.previous}</Button><span aria-live="polite">{m.page(current + 1, pages)} · {m.records(rows.length)}</span><Button disabled={current === pages - 1} onClick={() => setPage(current + 1)}>{m.next}</Button></div></div>;
 }

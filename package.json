@@ -1,6 +1,6 @@
 {
   "name": "@gobinathp/classic-web-desktop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Lightweight React desktop and component toolkit with classic styling, modern controls, TypeScript, and no extra runtime dependencies.",
   "type": "module",
   "license": "MIT",
@@ -27,7 +27,12 @@
       "import": "./dist/components.js",
       "require": "./dist/components.cjs"
     },
-    "./components.css": "./dist/components.css"
+    "./components.css": "./dist/components.css",
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js",
+      "require": "./dist/config.cjs"
+    }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -53,9 +58,10 @@
     "test": "node --test tests/model.test.ts",
     "test:browser": "playwright test",
     "check:size": "node scripts/size.mjs",
-    "check": "npm run typecheck && npm test && npm run build && npm run check:size",
+    "check": "npm run typecheck && npm test && npm run build && npm run test:package && npm run check:size",
     "preview": "node scripts/serve.mjs",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "test:package": "node --test tests/package.test.mjs"
   },
   "peerDependencies": {
     "react": "^18.2.0 || ^19.0.0"

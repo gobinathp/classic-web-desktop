@@ -1,12 +1,13 @@
-# Validation — v0.2.0 — 2026-10-20
+# Validation — v0.3.0 — 2026-10-21
 
 Local production build, Node 24.19.0, npm 11.9.0, headless Chromium 153.0.8010.0.
 
 | Check | Result |
 | --- | --- |
 | TypeScript strict check and declaration emission | Passed |
-| Window-state tests | 6 passed |
-| Browser integration tests | 10 passed |
+| Window-state tests | 7 passed |
+| Packaged ESM/CommonJS configuration and escaping tests | 4 passed |
+| Browser integration tests | 11 passed |
 | Automated accessibility | No violations reported for selected WCAG 2 A/AA and 2.1 A/AA rules in five Component studio categories and the sample modal |
 | Window lifecycle | Drag/resize/maximize, keyboard controls, viewport clamping, 30 open/close cycles returning DOM count to baseline |
 | Modern controls | Keyboard tabs, form validation semantics, switch state, inactive content cleanup, modal focus wrap/restoration, menu navigation, popover Escape, capped notifications, collapsed trees and sortable tables |
@@ -19,11 +20,13 @@ Local production build, Node 24.19.0, npm 11.9.0, headless Chromium 153.0.8010.0
 
 | Build | JavaScript | CSS | Combined |
 | --- | ---: | ---: | ---: |
-| Full root entry | 7,975 bytes | 5,345 bytes | 13,320 bytes |
-| Desktop only | 4,458 bytes | 2,638 bytes | 7,096 bytes |
-| Components only | 4,063 bytes | 3,333 bytes | 7,396 bytes |
+| Full root entry | 9,327 bytes | 6,523 bytes | 15,850 bytes |
+| Desktop only | 5,443 bytes | 3,196 bytes | 8,639 bytes |
+| Components only | 5,113 bytes | 4,010 bytes | 9,123 bytes |
 
-React is excluded from library measurements. A Button-only ESM consumer is 372 bytes gzip excluding React/CSS. Full demo JS including React and ReactDOM is 81,502 bytes gzip; demo CSS is additional. npm tarball includes alternate formats and declarations, so its size is larger than a consumer's selected browser bundle.
+React is excluded from library measurements; the shared configuration module is included. A Button-only ESM consumer is 371 bytes gzip excluding React/CSS. Full demo JS including React and ReactDOM is 83,610 bytes gzip; demo CSS is additional. npm tarball includes alternate formats and declarations, so its size is larger than a consumer's selected browser bundle.
+
+Customization verified: branding and token changes, top taskbar/right shortcuts, translated labels, five-row pages, eight-pixel keyboard movement and retained minimized input state. Packaged import tests verify nested-provider inheritance and resource budgets.
 
 ## Limits
 

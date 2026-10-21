@@ -8,7 +8,7 @@ A lightweight **React + TypeScript desktop and component toolkit** with classic 
 
 Our principles: keep the familiar desktop aesthetic, prioritize safe defaults, avoid unnecessary dependencies, and make the interface practical for modest hardware running maintained browsers.
 
-**Early release · v0.2.0 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
+**Early release · v0.3.0 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
 
 ![Classic desktop demo](docs/desktop.png)
 
@@ -34,7 +34,7 @@ The npm name `@gobinathp/classic-web-desktop` is **proposed, not yet published o
 npm ci
 npm pack
 # In your React project:
-npm install /path/to/gobinathp-classic-web-desktop-0.2.0.tgz
+npm install /path/to/gobinathp-classic-web-desktop-0.3.0.tgz
 ```
 
 ```tsx
@@ -99,7 +99,7 @@ The root entry exports everything and supports ESM tree shaking. Use `styles.css
 | --- | --- | --- |
 | `apps` | required | Stable array of trusted React app definitions; unique nonempty IDs |
 | `initialOpen` | `[]` | IDs opened once after the container is measured |
-| `maxWindows` | `8` | Open-window cap, constrained to 1–32 |
+| `maxWindows` | `8` | Open-window cap, constrained by configurable `windowCeiling` (default 32) |
 | `label` | `Classic desktop` | Accessible region label |
 | `className`, `style` | optional | Desktop container customization; provide a height |
 | `onWindowsChange` | optional | Window-state notification; no persistence is performed |
@@ -126,7 +126,7 @@ No additional runtime packages beyond the React peer. No polling, telemetry, ext
 
 The target is modest hardware running a maintained browser, **not every historical computer or browser**. ES2020, Pointer Events, CSS custom properties, and modern React are required; IE is unsupported. The demo targets Chromium, Firefox, and Safari, but see [validation](docs/VALIDATION.md) for what was actually tested. Touch hit targets are enlarged, and windows clamp to their container. Phone use is functional but the workspace is primarily designed for desktops/tablets.
 
-Run `npm run check:size` for compressed transfer sizes. **Download size is not RAM consumption.** Inactive tabs, closed disclosure content, and closed overlays unmount. Notifications are capped at three mounted entries. Native modal dialogs require a browser with `HTMLDialogElement.showModal()` support. Total memory depends on the browser, React, the app components, data, and active windows. No fixed RAM or universal-device guarantee is made. See [performance](docs/PERFORMANCE.md).
+Run `npm run check:size` for compressed transfer sizes. **Download size is not RAM consumption.** Inactive tabs, closed disclosure content, and closed overlays unmount. Notifications default to three mounted entries; rendering limits and content retention are configurable. Native modal dialogs require a browser with `HTMLDialogElement.showModal()` support. Total memory depends on the browser, React, the app components, data, and active windows. No fixed RAM or universal-device guarantee is made. See [performance](docs/PERFORMANCE.md).
 
 ## Security
 
@@ -144,4 +144,8 @@ npm audit
 npm pack --dry-run
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [release setup](docs/RELEASING.md), and [validation](docs/VALIDATION.md). Keep runtime dependencies minimal, test window lifecycle changes, and keep gzipped library JS under 12 KB and CSS under 6.5 KB (combined stylesheet). Desktop-only JS remains capped at 5 KB gzip and CSS at 3 KB. Open a pull request for changes.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [release setup](docs/RELEASING.md), and [validation](docs/VALIDATION.md). Keep runtime dependencies minimal, test window lifecycle changes, and keep gzipped library JS under 12 KB and CSS under 7 KB (combined stylesheet). Desktop-only JS including shared configuration remains capped at 7 KB gzip and CSS at 3.5 KB. Open a pull request for changes.
+
+## Make it your own
+
+Use `DesktopProvider` for shared branding, messages, icons, geometry, lifecycle, and resource budgets. Theme tokens preserve the classic design while allowing your own palette and dimensions. Open **Customization** in the demo for a working example. See the [configuration guide](docs/CONFIGURATION.md) and [theme token catalog](docs/THEME-TOKENS.md). Sample data remains isolated in `demo/`; library components do not contain project-specific services or records.
