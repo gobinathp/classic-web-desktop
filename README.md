@@ -2,13 +2,13 @@
 
 A lightweight **React + TypeScript desktop and component toolkit** with classic blue styling and modern interactions. Built by **Gobinath Palanisamy** for developers creating internal tools, dashboards, and reusable desktop-style web applications.
 
-**38 component exports · No additional runtime dependencies beyond React · Modular imports · MIT**
+**50 UI/helper component exports + configuration provider · No additional runtime dependencies beyond React · Modular imports · MIT**
 
 [Component catalog](docs/COMPONENTS.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md) · [Performance](docs/PERFORMANCE.md) · [Validation](docs/VALIDATION.md)
 
 Our principles: keep the familiar desktop aesthetic, prioritize safe defaults, avoid unnecessary dependencies, and make the interface practical for modest hardware running maintained browsers.
 
-**Early release · v0.3.1 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
+**Early release · v0.4.0 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
 
 ![Classic desktop demo](docs/desktop.png)
 
@@ -34,7 +34,7 @@ The npm name `@gobinathp/classic-web-desktop` is **proposed, not yet published o
 npm ci
 npm pack
 # In your React project:
-npm install /path/to/gobinathp-classic-web-desktop-0.3.1.tgz
+npm install /path/to/gobinathp-classic-web-desktop-0.4.0.tgz
 ```
 
 ```tsx
@@ -122,7 +122,7 @@ Pass `rows`, `columns: { key, title, render(row), sortValue?(row) }[]`, `rowKey(
 
 ## Small-device and memory policy
 
-No additional runtime packages beyond the React peer. No polling, telemetry, external images, webfonts, animation loops, blur effects, or automatic storage. Pointer movement changes only window geometry and schedules at most one animation frame; React state is committed at the end of a gesture. Listener/observer/frame cleanup is explicit. Z order is a bounded array rather than an ever-increasing counter.
+No additional runtime packages beyond the React peer. No polling, telemetry, external images, webfonts, JavaScript animation loops, blur effects, or automatic storage. Pointer movement changes only window geometry and schedules at most one animation frame; React state is committed at the end of a gesture. Listener/observer/frame cleanup is explicit. Z order is a bounded array rather than an ever-increasing counter.
 
 The target is modest hardware running a maintained browser, **not every historical computer or browser**. ES2020, Pointer Events, CSS custom properties, and modern React are required; IE is unsupported. The demo targets Chromium, Firefox, and Safari, but see [validation](docs/VALIDATION.md) for what was actually tested. Touch hit targets are enlarged, and windows clamp to their container. Phone use is functional but the workspace is primarily designed for desktops/tablets.
 
@@ -144,8 +144,12 @@ npm audit
 npm pack --dry-run
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [release setup](docs/RELEASING.md), and [validation](docs/VALIDATION.md). Keep runtime dependencies minimal, test window lifecycle changes, and keep gzipped library JS under 12 KB and CSS under 7 KB (combined stylesheet). Desktop-only JS including shared configuration remains capped at 7 KB gzip and CSS at 3.5 KB. Open a pull request for changes.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [release setup](docs/RELEASING.md), and [validation](docs/VALIDATION.md). Keep runtime dependencies minimal, test window lifecycle changes, and keep gzipped library JS under 14 KB and CSS under 8 KB (combined stylesheet). Desktop-only JS including shared configuration remains capped at 7 KB gzip and CSS at 3.5 KB. Open a pull request for changes.
 
 ## Make it your own
 
 Use `DesktopProvider` for shared branding, messages, icons, geometry, lifecycle, and resource budgets. Theme tokens preserve the classic design while allowing your own palette and dimensions. Open **Customization** in the demo for a working example. See the [configuration guide](docs/CONFIGURATION.md) and [theme token catalog](docs/THEME-TOKENS.md). Sample data remains isolated in `demo/`; library components do not contain project-specific services or records.
+
+## New in v0.4
+
+ListView, PredefinedDialog (alert/confirm/prompt), Splitter, Timeline, ButtonGroup, SplitButton, Chips, ListBox, ContextMenu, AppBar, Rating, and Spinner. Open **Start → New in v0.4** for all twelve working demos. See [API, configuration and limits](docs/CONTROLS-V04.md). Import from `/controls` or the root. Spinner uses CSS animation only while mounted and respects reduced motion.

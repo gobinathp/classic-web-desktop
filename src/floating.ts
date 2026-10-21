@@ -2,7 +2,7 @@ import { useLayoutEffect } from 'react';
 import type { RefObject } from 'react';
 
 /** Keep inline overlays inside the viewport and every clipping ancestor. No portal or runtime dependency. */
-export function useFloating(open: boolean, anchor: RefObject<HTMLElement | null>, panel: RefObject<HTMLElement | null>) {
+export function useFloating(open: boolean, anchor: RefObject<HTMLElement | null>, panel: RefObject<HTMLElement | null>, placementKey?: unknown) {
   useLayoutEffect(() => {
     const root = anchor.current, element = panel.current;
     if (!open || !root || !element) return;
@@ -39,5 +39,5 @@ export function useFloating(open: boolean, anchor: RefObject<HTMLElement | null>
     const mutation = windowElement ? new MutationObserver(position) : null;
     if (windowElement) mutation?.observe(windowElement, { attributes: true, attributeFilter: ['style'] });
     return () => { window.removeEventListener('resize', position); document.removeEventListener('scroll', position, true); observer?.disconnect(); mutation?.disconnect(); };
-  }, [open, anchor, panel]);
+  }, [open, anchor, panel, placementKey]);
 }

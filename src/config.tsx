@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 /** Plain text and React nodes only; no HTML parsing or network-backed translations. */
 export const defaultMessages = {
+  confirm: 'OK', cancel: 'Cancel', promptLabel: 'Value', requiredValue: 'Enter a value.', remove: (label: string) => 'Remove ' + label, rating: (value: number, max: number) => value + ' of ' + max + ' stars',
   desktop: 'Classic desktop', applications: 'Desktop applications', openWindows: 'Open windows',
   startApplications: 'Start applications', start: 'Start', workspace: 'Your workspace',
   dismissNotification: 'Dismiss notification', notifications: 'Notifications', actions: 'Actions',
@@ -23,9 +24,9 @@ export const defaultBehavior = {
   defaultWidth: 480, defaultHeight: 340, cascadeOrigin: 24, cascadeStep: 28,
   keyboardStep: 16, keyboardEnabled: true, doubleClickMaximize: true,
   keepMinimized: false, keepInactiveTabs: false, keepCollapsed: false,
-  pageSize: 20, maxPageSize: 100, maxSuggestions: 100, maxToasts: 3, maxSkeletonLines: 10,
+  pageSize: 20, maxPageSize: 100, maxSuggestions: 100, maxToasts: 3, maxSkeletonLines: 10, maxRating: 10, maxListBoxRows: 20,
 };
-export const defaultIcons = { app: '▣', start: '▦', minimize: '_', maximize: '□', restore: '❐', close: '×', empty: '▱', help: '?', menu: '▾', complete: '✓', sortAscending: '↑', sortDescending: '↓', sortNone: '↕' };
+export const defaultIcons = { rating: '★', app: '▣', start: '▦', minimize: '_', maximize: '□', restore: '❐', close: '×', empty: '▱', help: '?', menu: '▾', complete: '✓', sortAscending: '↑', sortDescending: '↓', sortNone: '↕' };
 export interface DesktopConfiguration {
   messages: typeof defaultMessages;
   behavior: typeof defaultBehavior;

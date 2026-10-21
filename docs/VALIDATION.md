@@ -1,4 +1,4 @@
-# Validation — v0.3.1 — 2026-10-21
+# Validation — v0.4.0 — 2026-10-21
 
 Local production build, Node 24.19.0, npm 11.9.0, headless Chromium 153.0.8010.0.
 
@@ -6,8 +6,8 @@ Local production build, Node 24.19.0, npm 11.9.0, headless Chromium 153.0.8010.0
 | --- | --- |
 | TypeScript strict check and declaration emission | Passed |
 | Window-state tests | 7 passed |
-| Packaged ESM/CommonJS configuration and escaping tests | 4 passed |
-| Browser integration tests | 13 passed |
+| Packaged ESM/CommonJS configuration and escaping tests | 6 passed |
+| Browser integration tests | 17 passed |
 | Automated accessibility | No violations reported for selected WCAG 2 A/AA and 2.1 A/AA rules in five Component studio categories and the sample modal |
 | Window lifecycle | Drag/resize/maximize, keyboard controls, viewport clamping, 30 open/close cycles returning DOM count to baseline |
 | Modern controls | Keyboard tabs, form validation semantics, switch state, inactive content cleanup, modal focus wrap/restoration, menu navigation, popover Escape, capped notifications, collapsed trees and sortable tables |
@@ -20,11 +20,11 @@ Local production build, Node 24.19.0, npm 11.9.0, headless Chromium 153.0.8010.0
 
 | Build | JavaScript | CSS | Combined |
 | --- | ---: | ---: | ---: |
-| Full root entry | 9,997 bytes | 6,523 bytes | 16,520 bytes |
-| Desktop only | 5,485 bytes | 3,196 bytes | 8,681 bytes |
-| Components only | 5,788 bytes | 4,010 bytes | 9,798 bytes |
+| Full root entry | 12,579 bytes | 7,324 bytes | 19,903 bytes |
+| Desktop only | 5,581 bytes | 3,210 bytes | 8,791 bytes |
+| Components only | 5,895 bytes | 4,010 bytes | 9,905 bytes |
 
-React is excluded from library measurements; the shared configuration module is included. A Button-only ESM consumer is 384 bytes gzip excluding React/CSS. Full demo JS including React and ReactDOM is 84,571 bytes gzip; demo CSS is additional. npm tarball includes alternate formats and declarations, so its size is larger than a consumer's selected browser bundle.
+React is excluded from library measurements; the shared configuration module is included. A Button-only ESM consumer is 412 bytes gzip excluding React/CSS. Full demo JS including React and ReactDOM is 88,486 bytes gzip; demo CSS is additional. npm tarball includes alternate formats and declarations, so its size is larger than a consumer's selected browser bundle.
 
 Customization verified: branding and token changes, top taskbar/right shortcuts, translated labels, five-row pages, eight-pixel keyboard movement and retained minimized input state. Packaged import tests verify nested-provider inheritance and resource budgets.
 
@@ -35,3 +35,9 @@ These are download measurements, not RAM guarantees. DOM counts do not prove abs
 The regular local Playwright browser download was unavailable; an extracted Chromium package was used via CHROMIUM_EXECUTABLE_PATH. GitHub CI uses Playwright's standard install. GitHub workflow and hosting success must be checked after publication. npm is not published yet.
 
 Visual review regressions: overlay bounding boxes inside window content, tooltip hover/click/Escape, empty and whitespace-only workspace rejection, Enter submission, stable taskbar order, owner search, native Archive marker and visible sample action feedback.
+
+## v0.4 verification
+
+All twelve new controls exercised in four additional browser scenarios: paginated selection, native multi-select, tag selection/removal, action-group navigation, split-button actions, context menu mouse/keyboard/touch fallback, rating keys, reduced-motion Spinner, Splitter pointer/keyboard sizing in both orientations, three predefined dialog modes with prompt validation, AppBar action feedback and Timeline semantics. Additional axe checks cover all three new demo categories and prompt dialog. A 360px viewport checks context-menu containment. Packaged ESM and CommonJS tests verify the twelve exports and shared translation/resource limits.
+
+The controls entry including reused primitives is 6,236 gzip bytes of JS, plus 1,312 bytes of optional CSS (base styles additionally required). No new runtime dependencies were added. All 30 tests pass locally: seven model, six package and seventeen browser tests.

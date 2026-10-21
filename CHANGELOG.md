@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — 2026-10-21
+
+- Add twelve controls: ListView, PredefinedDialog, Splitter, Timeline, ButtonGroup, SplitButton, Chips, ListBox, ContextMenu, AppBar, Rating, Spinner.
+- Add modular `/controls` ESM/CommonJS entry and CSS, scoped labels/icons/budgets, and classic styling.
+- Add New in v0.4 demo with interactive collections, actions, layout and dialog scenarios.
+- Add keyboard, pointer, accessibility, reduced-motion, narrow-layout and packaged-import tests.
+- Keep desktop-only dependencies isolated; expand full-root size budgets to account for the new controls.
+
+
 ## 0.3.1 — 2026-10-21
 
 - Keep menus, popovers and help tooltips inside clipping ancestors, reposition on resize/scroll/window movement, and scroll oversized panels.

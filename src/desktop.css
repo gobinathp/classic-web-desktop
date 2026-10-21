@@ -14,3 +14,5 @@
 .cwd-desktop .cwd-button-primary{color:var(--cwd-desktop-button-primary-color,#fff)}.cwd-desktop .cwd-button-danger{color:var(--cwd-desktop-button-danger-color,#923c35)}.cwd-desktop .cwd-button-ghost{color:var(--cwd-desktop-button-ghost-color,#315f87)}
 
 .cwd-theme{height:100%;min-height:0}.cwd-surface{isolation:isolate}.cwd-desktop[data-taskbar=top]{flex-direction:column-reverse}.cwd-desktop[data-taskbar=top] .cwd-launcher{bottom:auto;top:var(--cwd-taskbar-height,38px)}.cwd-desktop[data-shortcuts=right] .cwd-shortcuts{left:auto;right:12px}.cwd-desktop[data-shortcuts=hidden] .cwd-shortcuts{display:none}
+
+.cwd-shortcuts{max-height:calc(100% - 40px);overflow-y:auto;scrollbar-width:thin}

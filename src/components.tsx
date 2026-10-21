@@ -105,7 +105,7 @@ export function Popover({ label, children }: { label: string; children: ReactNod
   return <div className="cwd-popover" ref={ref} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }} onKeyDown={e => { if (e.key === 'Escape' && open) { e.stopPropagation(); setOpen(false); button.current?.focus(); } }}><button type="button" ref={button} aria-expanded={open} aria-controls={uid} onClick={() => setOpen(v => !v)}>{label}</button>{open && <div ref={panel} className="cwd-popover-content" id={uid} role="region" aria-label={label}>{children}</div>}</div>;
 }
 export interface MenuItem { id: string; label: string; onSelect: () => void; disabled?: boolean; danger?: boolean }
-export function DropdownMenu({ label, items }: { label: string; items: readonly MenuItem[] }) {
+export function DropdownMenu({ label, items, disabled = false }: { label: string; items: readonly MenuItem[]; disabled?: boolean }) {
   const { icons } = useDesktopConfiguration();
   const [open, setOpen] = useState(false), root = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null), panel = useRef<HTMLDivElement>(null), uid = useId();
   useFloating(open, root, panel);
@@ -115,8 +115,9 @@ export function DropdownMenu({ label, items }: { label: string; items: readonly 
     const outside = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false); };
     document.addEventListener('pointerdown', outside); return () => document.removeEventListener('pointerdown', outside);
   }, [open]);
+  useEffect(() => { if (disabled) setOpen(false); }, [disabled]);
   const close = () => { setOpen(false); trigger.current?.focus(); };
-  return <div ref={root} className="cwd-dropdown" onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }}><button type="button" ref={trigger} aria-haspopup="menu" aria-expanded={open} aria-controls={uid} onClick={() => setOpen(v => !v)} onKeyDown={e => { if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); } }}>{label} <span aria-hidden="true">{icons.menu}</span></button>{open && <div ref={panel} id={uid} role="menu" aria-label={label} className="cwd-dropdown-panel" onKeyDown={e => {
+  return <div ref={root} className="cwd-dropdown" onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }}><button type="button" ref={trigger} disabled={disabled} aria-haspopup="menu" aria-expanded={open} aria-controls={uid} onClick={() => setOpen(v => !v)} onKeyDown={e => { if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); } }}>{label} <span aria-hidden="true">{icons.menu}</span></button>{open && <div ref={panel} id={uid} role="menu" aria-label={label} className="cwd-dropdown-panel" onKeyDown={e => {
     if (e.key === 'Escape') { e.stopPropagation(); close(); return; }
     const buttons = Array.from(panel.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
     if (!buttons.length) return;

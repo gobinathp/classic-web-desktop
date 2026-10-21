@@ -1,4 +1,4 @@
-# Component catalog — v0.3
+# Component catalog — v0.4
 
 All content is trusted React content. Text props render through React escaping. Components do not fetch, upload, store, or authenticate data. Import the corresponding CSS explicitly. Types are exported alongside components.
 
@@ -97,3 +97,7 @@ export function Preferences() {
 ```
 
 Shared labels, icons, budgets and lifecycle defaults are configurable through `DesktopProvider`. See [configuration](CONFIGURATION.md) for controlled DataGrid state and modal/layout additions.
+
+## Twelve v0.4 controls
+
+See [v0.4 control APIs and demos](CONTROLS-V04.md) for ListView, PredefinedDialog, Splitter, Timeline, ButtonGroup, SplitButton, Chips, ListBox, ContextMenu, AppBar, Rating and Spinner.

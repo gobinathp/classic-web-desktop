@@ -60,3 +60,7 @@ See [theme tokens](THEME-TOKENS.md) for surface, text, border, radius, shadow, t
 Not every implementation constant should become configuration. ARIA roles, focus trapping, standard navigation keys, escaped rendering, cleanup, unique IDs, clipping to the viewport, and native browser behavior remain correctness/accessibility rules. Border widths, minor spacing and breakpoints remain overridable stylesheet defaults. This library does not promise automatic RTL mirroring, arbitrary taskbar orientations, or obsolete-browser compatibility.
 
 Open **Customization** in the demo to change branding, a green classic palette, partial French translations, taskbar placement, row/toast limits, keyboard distance, and content preservation. The component gallery continues to show all existing components.
+
+## v0.4 additions
+
+See [v0.4 controls](CONTROLS-V04.md) for new labels, rating glyph, resource limits and styling tokens. All use the same scoped provider.

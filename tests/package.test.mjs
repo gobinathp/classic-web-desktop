@@ -32,3 +32,20 @@ for (const [format, root, desktop, components] of [
     assert.match(html, /<td>two<\/td>/); assert.doesNotMatch(html, /<td>one<\/td>|<script>/); assert.match(html, /&lt;script&gt;/);
   });
 }
+
+const esmControls = await import('../dist/controls.js');
+for (const [format, root, controls] of [['ESM', esmRoot, esmControls], ['CommonJS', require('../dist/index.cjs'), require('../dist/controls.cjs')]]) {
+  test(`${format}: twelve new exports share scoped configuration and bound list rendering`, () => {
+    for (const name of ['ListView', 'PredefinedDialog', 'Splitter', 'Timeline', 'ButtonGroup', 'SplitButton', 'Chips', 'ListBox', 'ContextMenu', 'AppBar', 'Rating', 'Spinner']) assert.equal(typeof controls[name], 'function', name);
+    const html = render(h(root.DesktopProvider, { config: { messages: { loading: 'Chargement', remove: text => 'Retirer ' + text }, behavior: { maxRating: 3, maxPageSize: 2 } } },
+      h(controls.Spinner),
+      h(controls.Chips, { label: 'Tags', items: [{ id: 'a', label: '<unsafe>' }], onRemove() {} }),
+      h(controls.Rating, { label: 'Score', value: 1, max: 5, onChange() {} }),
+      h(controls.ListView, { label: 'Records', items: Array.from({ length: 100 }, (_, i) => ({ id: String(i), label: 'Record ' + i })), pageSize: 50, onSelect() {} }),
+      h(controls.PredefinedDialog, { open: false, title: 'Closed preset', message: 'Hidden contents', onClose() {}, onConfirm() {} }),
+    ));
+    assert.match(html, /Chargement/); assert.match(html, /Retirer &lt;unsafe&gt;/); assert.doesNotMatch(html, /<unsafe>|Hidden contents/);
+    assert.equal((html.match(/type="radio"/g) ?? []).length, 3);
+    assert.match(html, /Record 1</); assert.doesNotMatch(html, /Record 2</);
+  });
+}

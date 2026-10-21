@@ -8,11 +8,11 @@
 4. Default cap: eight open windows (configurable ceiling: 32 by default). Minimized content unmounts unless `keepAlive` is explicitly requested.
 5. Listeners, resize observers, and pending animation frames are removed on teardown. No timers or background polling.
 6. Table pagination renders 20 rows by default, at most 100 by default. Dataset allocation remains the application's responsibility.
-7. Native fonts and CSS shapes avoid image/font decoding overhead. No blur or animation layers.
+7. Native fonts and CSS shapes avoid image/font decoding overhead. No blur effects. The opt-in Spinner has a CSS transform animation while mounted and becomes static under reduced motion.
 
 ## Size budgets
 
-`npm run check:size` fails above 12,000 gzip bytes for library JS, 7,000 for combined CSS, or 110,000 for full-demo JS. These are transfer-size budgets, not heap limits. Both ESM and CommonJS are provided but consumers normally load only one.
+`npm run check:size` fails above 14,000 gzip bytes for library JS, 8,000 for combined CSS, or 110,000 for full-demo JS. These are transfer-size budgets, not heap limits. Both ESM and CommonJS are provided but consumers normally load only one.
 
 ## How to measure a real host
 
@@ -33,3 +33,7 @@ Inactive tabs and collapsed disclosure branches unmount their contents. Closed m
 ## v0.3 configurable budgets
 
 All rendering budgets above are defaults exposed through `DesktopProvider`. Preserving hidden content or raising caps has an explicit memory tradeoff. Transfer checks bundle the shared configuration dependency into each measured JS entry, preventing under-reporting from externalizing it. Theme customization raised the CSS budget by 500 bytes (combined) while adding no runtime dependency. See [configuration](CONFIGURATION.md).
+
+## v0.4 additions
+
+Twelve controls have a separate `/controls` entry and stylesheet. Full-root/combined-style budgets increased for the expanded API; desktop-only budgets remain unchanged. ListView paginates; native ListBox, Timeline and Chips require bounded host datasets. Splitter updates controlled pane sizing during pointer movement. See [v0.4 controls](CONTROLS-V04.md).
