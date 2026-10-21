@@ -4,7 +4,7 @@ test('opens, minimizes, releases contents, restores and closes; no external requ
   const errors: string[] = [], external: string[] = [];
   page.on('pageerror', e => errors.push(e.message));
   page.on('request', r => { if (!r.url().startsWith('http://127.0.0.1:4173')) external.push(r.url()); });
-  await page.goto('/');
+  await page.goto('/gallery.html');
   await expect(page.getByRole('dialog')).toHaveCount(3);
   await page.screenshot({ path: 'test-results/desktop.png' });
   await page.getByRole('navigation', { name: 'Desktop applications' }).getByRole('button', { name: 'Notepad' }).click();
@@ -18,7 +18,7 @@ test('opens, minimizes, releases contents, restores and closes; no external requ
   expect(errors).toEqual([]); expect(external).toEqual([]);
 });
 test('drag, resize, maximize, keyboard move and viewport containment', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   await page.getByRole('navigation', { name: 'Open windows' }).getByRole('button', { name: 'Welcome' }).click();
   const win = page.getByRole('dialog', { name: 'Welcome' });
   const before = (await win.boundingBox())!;
@@ -43,7 +43,7 @@ test('drag, resize, maximize, keyboard move and viewport containment', async ({ 
   await page.screenshot({ path: 'test-results/mobile.png' });
 });
 test('table mounts one page and hostile text is treated as text', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   await page.getByRole('navigation', { name: 'Open windows' }).getByRole('button', { name: 'Projects' }).click();
   await expect(page.locator('tbody tr')).toHaveCount(20);
   await page.getByRole('button', { name: 'Next', exact: true }).click();
@@ -55,7 +55,7 @@ test('table mounts one page and hostile text is treated as text', async ({ page 
   await expect(page.locator('img')).toHaveCount(0);
 });
 test('start launcher keyboard dismissal and repeated open-close do not accumulate DOM', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   const start = page.getByRole('button', { name: 'Start', exact: true });
   await start.click(); await expect(page.getByRole('navigation', { name: 'Start applications' })).toBeVisible();
   await page.keyboard.press('Escape'); await expect(start).toBeFocused();
@@ -68,7 +68,7 @@ test('start launcher keyboard dismissal and repeated open-close do not accumulat
 });
 
 test('component tabs implement keyboard activation and unmount inactive forms', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   const overview = page.getByRole('tab', { name: 'Overview', exact: true });
   await overview.focus(); await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('tab', { name: 'Forms', exact: true })).toBeFocused();
@@ -83,7 +83,7 @@ test('component tabs implement keyboard activation and unmount inactive forms', 
   await expect(page.getByLabel('Display name', { exact: true })).toHaveValue('Gobinath');
 });
 test('modal dialog traps focus, Escape closes and returns focus', async ({ page }) => {
-  await page.goto('/'); await page.getByRole('tab', { name: 'Overlays', exact: true }).click();
+  await page.goto('/gallery.html'); await page.getByRole('tab', { name: 'Overlays', exact: true }).click();
   const trigger = page.getByRole('button', { name: 'Open dialog', exact: true });
   await trigger.click();
   const modal = page.getByRole('dialog', { name: 'Create workspace', exact: true });
@@ -96,7 +96,7 @@ test('modal dialog traps focus, Escape closes and returns focus', async ({ page 
   await page.keyboard.press('Escape'); await expect(page.getByRole('button', { name: 'Open drawer', exact: true })).toBeFocused();
 });
 test('menu skips disabled actions, supports keyboard and popover dismissal', async ({ page }) => {
-  await page.goto('/'); await page.getByRole('tab', { name: 'Overlays', exact: true }).click();
+  await page.goto('/gallery.html'); await page.getByRole('tab', { name: 'Overlays', exact: true }).click();
   const trigger = page.getByRole('button', { name: 'Project actions' });
   await trigger.focus(); await page.keyboard.press('ArrowDown');
   await expect(page.getByRole('menuitem', { name: 'Open project', exact: true })).toBeFocused();
@@ -110,7 +110,7 @@ test('menu skips disabled actions, supports keyboard and popover dismissal', asy
   await page.keyboard.press('Escape'); await expect(page.getByRole('region', { name: 'Workspace info', exact: true })).toHaveCount(0);
 });
 test('notifications stay capped and tree/accordion children mount on demand', async ({ page }) => {
-  await page.goto('/'); await page.getByRole('tab', { name: 'Feedback', exact: true }).click();
+  await page.goto('/gallery.html'); await page.getByRole('tab', { name: 'Feedback', exact: true }).click();
   for (let i = 0; i < 8; i++) await page.getByRole('button', { name: 'Add notification', exact: true }).click();
   await expect(page.locator('.cwd-toast')).toHaveCount(3);
   await page.getByRole('button', { name: 'Dismiss Notification 8', exact: true }).click();
@@ -124,7 +124,7 @@ test('notifications stay capped and tree/accordion children mount on demand', as
   await expect(folders.getByRole('button', { name: 'Projects', exact: true })).toHaveCount(0);
 });
 test('table sorts with accessible column state before pagination', async ({ page }) => {
-  await page.goto('/'); await page.getByRole('navigation', { name: 'Open windows' }).getByRole('button', { name: 'Projects', exact: true }).click();
+  await page.goto('/gallery.html'); await page.getByRole('navigation', { name: 'Open windows' }).getByRole('button', { name: 'Projects', exact: true }).click();
   const header = page.getByRole('columnheader').first();
   await header.getByRole('button').click(); await expect(header).toHaveAttribute('aria-sort', 'ascending');
   await header.getByRole('button').click(); await expect(header).toHaveAttribute('aria-sort', 'descending');
@@ -133,7 +133,7 @@ test('table sorts with accessible column state before pagination', async ({ page
 });
 
  test('component studio has no detected WCAG A/AA violations in each category', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   for (const category of ['Overview', 'Forms', 'Navigation', 'Feedback', 'Overlays']) {
     await page.getByRole('tab', { name: category, exact: true }).click();
     const result = await new AxeBuilder({ page }).include('[data-window="components"]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -145,7 +145,7 @@ test('table sorts with accessible column state before pagination', async ({ page
 });
 
 test('customization updates branding, theme, layout, limits and hidden-content policy', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   await page.getByRole('navigation', { name: 'Desktop applications' }).getByRole('button', { name: 'Customization' }).click();
   await page.getByLabel('Custom branding, green theme and French sample labels').check();
   await expect(page.getByRole('button', { name: 'Démarrer', exact: true })).toBeVisible();
@@ -174,7 +174,7 @@ test('customization updates branding, theme, layout, limits and hidden-content p
 });
 
 test('review regressions: bounded overlays, hover/click tooltip and nonblank workspace', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   await page.getByRole('tab', { name: 'Overlays', exact: true }).click();
   await page.getByRole('button', { name: 'Project actions' }).click();
   const menu = page.getByRole('menu', { name: 'Project actions' });
@@ -205,7 +205,7 @@ test('review regressions: bounded overlays, hover/click tooltip and nonblank wor
 });
 
 test('review regressions: stable taskbar, owner search, explorer and demo feedback', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   const tasks = page.getByRole('navigation', { name: 'Open windows' });
   const order = await tasks.getByRole('button').allTextContents();
   await tasks.getByRole('button', { name: 'Welcome', exact: true }).click();

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.1 — 2026-10-21
+
+- Replace the generic landing demo with an interactive AlignMe desktop for goals, actions, habits, reflection and guided planning.
+- Keep the full component gallery at gallery.html with an independent bundle.
+- Preserve saved session data across window teardown; clearly disclose sample data and template-based planning.
+- Make desktop content keyboard-focusable for scrolling read-only dashboards.
+- Add connected-workflow, accessibility and mobile regression tests.
+
+
 ## 0.4.0 — 2026-10-21
 
 - Add twelve controls: ListView, PredefinedDialog, Splitter, Timeline, ButtonGroup, SplitButton, Chips, ListBox, ContextMenu, AppBar, Rating, Spinner.

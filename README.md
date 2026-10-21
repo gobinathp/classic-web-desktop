@@ -8,9 +8,9 @@ A lightweight **React + TypeScript desktop and component toolkit** with classic 
 
 Our principles: keep the familiar desktop aesthetic, prioritize safe defaults, avoid unnecessary dependencies, and make the interface practical for modest hardware running maintained browsers.
 
-**Early release · v0.4.0 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
+**Early release · v0.4.1 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
 
-![Classic desktop demo](docs/desktop.png)
+![AlignMe personal growth desktop](docs/alignme.jpg)
 
 ## Try it locally
 
@@ -22,7 +22,7 @@ npm run check
 npm run preview
 ```
 
-Open http://127.0.0.1:4173. The build creates both the library (`dist/`) and a static demo (`site/`).
+Open http://127.0.0.1:4173 for the AlignMe product demo. Open http://127.0.0.1:4173/gallery.html for the component gallery. The build creates the library (`dist/`) and both static demo pages (`site/`).
 
 The configured GitHub Pages destination is https://gobinathp.github.io/classic-web-desktop/ — it becomes available after Pages is enabled and the deployment succeeds.
 
@@ -34,7 +34,7 @@ The npm name `@gobinathp/classic-web-desktop` is **proposed, not yet published o
 npm ci
 npm pack
 # In your React project:
-npm install /path/to/gobinathp-classic-web-desktop-0.4.0.tgz
+npm install /path/to/gobinathp-classic-web-desktop-0.4.1.tgz
 ```
 
 ```tsx
@@ -75,7 +75,7 @@ For Next.js, import the desktop from a client component (`'use client'`). React 
 | Overlays & notifications | Tooltip, Popover, DropdownMenu, Dialog, Drawer, ToastViewport |
 | Styling | ComponentTheme |
 
-Open **Component studio** in the demo to explore Overview, Forms, Navigation, Feedback, and Overlays. Compact and comfortable densities share the same classic theme. The Projects app demonstrates sorting and pagination.
+Open **Component studio** in the component gallery to explore Overview, Forms, Navigation, Feedback, and Overlays. Compact and comfortable densities share the same classic theme. The Projects app demonstrates sorting and pagination.
 
 This is a broad foundational toolkit, not literally every possible widget. Rich-text editors, charts, maps, scheduling, and enterprise data grids belong in optional integrations rather than the small core. See the [roadmap](docs/ROADMAP.md).
 
@@ -148,8 +148,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md), [release setup](docs/RELEASING.md), and 
 
 ## Make it your own
 
-Use `DesktopProvider` for shared branding, messages, icons, geometry, lifecycle, and resource budgets. Theme tokens preserve the classic design while allowing your own palette and dimensions. Open **Customization** in the demo for a working example. See the [configuration guide](docs/CONFIGURATION.md) and [theme token catalog](docs/THEME-TOKENS.md). Sample data remains isolated in `demo/`; library components do not contain project-specific services or records.
+Use `DesktopProvider` for shared branding, messages, icons, geometry, lifecycle, and resource budgets. Theme tokens preserve the classic design while allowing your own palette and dimensions. Open **Customization** in the component gallery for a working example. See the [configuration guide](docs/CONFIGURATION.md) and [theme token catalog](docs/THEME-TOKENS.md). Sample data remains isolated in `demo/`; library components do not contain project-specific services or records.
 
 ## New in v0.4
 
-ListView, PredefinedDialog (alert/confirm/prompt), Splitter, Timeline, ButtonGroup, SplitButton, Chips, ListBox, ContextMenu, AppBar, Rating, and Spinner. Open **Start → New in v0.4** for all twelve working demos. See [API, configuration and limits](docs/CONTROLS-V04.md). Import from `/controls` or the root. Spinner uses CSS animation only while mounted and respects reduced motion.
+ListView, PredefinedDialog (alert/confirm/prompt), Splitter, Timeline, ButtonGroup, SplitButton, Chips, ListBox, ContextMenu, AppBar, Rating, and Spinner. Open **Start → New in v0.4** in the component gallery for all twelve working demos. See [API, configuration and limits](docs/CONTROLS-V04.md). Import from `/controls` or the root. Spinner uses CSS animation only while mounted and respects reduced motion.
+
+## AlignMe product demo
+
+The main demo turns the toolkit into a goals-and-habits workspace: create goals, plan actions, track habits, review progress and keep a reflection. Saved session state is shared across desktop windows. The planning assistant uses clearly labelled templates, not a live AI service. Reload resets the sample data. [Demo scope and architecture](docs/ALIGNME-DEMO.md). The component demonstrations remain available at `gallery.html`.

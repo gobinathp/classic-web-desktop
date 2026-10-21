@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 async function openControls(page: import('@playwright/test').Page) {
-  await page.goto('/');
+  await page.goto('/gallery.html');
   await page.getByRole('button', { name: 'Start', exact: true }).click();
   await page.getByRole('navigation', { name: 'Start applications' }).getByRole('button', { name: 'New in v0.4' }).click();
 }

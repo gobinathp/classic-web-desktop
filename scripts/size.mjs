@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
-const budgets = { 'dist/index.js': 14000, 'dist/desktop.js': 7000, 'dist/components.js': 8000, 'dist/styles.css': 8000, 'dist/desktop.css': 3500, 'dist/components.css': 4500, 'dist/controls.js': 9000, 'dist/controls.css': 2000, 'site/app.js': 110000 };
+const budgets = { 'dist/index.js': 14000, 'dist/desktop.js': 7000, 'dist/components.js': 8000, 'dist/styles.css': 8000, 'dist/desktop.css': 3500, 'dist/components.css': 4500, 'dist/controls.js': 9000, 'dist/controls.css': 2000, 'site/app.js': 110000, 'site/gallery.js': 110000 };
 console.log('JS budgets include the shared configuration module, excluding React.');
 let failed = false;
 for (const [file, budget] of Object.entries(budgets)) {

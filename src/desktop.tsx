@@ -111,7 +111,7 @@ function DesktopWindow({ app, win, active, order, bounds, dispatch }: {
       </div>
     </header>
     <span id={hintId} className="cwd-sr">{b.keyboardEnabled ? m.keyboardHint : null}</span>
-    <div className="cwd-window-content"><AppBoundary message={m.appError}><AppContent app={app} context={context} /></AppBoundary></div>
+    <div className="cwd-window-content" tabIndex={0}><AppBoundary message={m.appError}><AppContent app={app} context={context} /></AppBoundary></div>
     {!win.maximized && <div className="cwd-resize" aria-hidden="true" onPointerDown={e => start(e, true)} onPointerMove={move} onPointerUp={() => finish()} onPointerCancel={() => finish(true)} onLostPointerCapture={() => finish(true)} />}
   </section>;
 }

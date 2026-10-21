@@ -15,3 +15,6 @@ for (const entry of ['styles', 'desktop', 'components', 'controls']) {
 }
 await build({ entryPoints: ['demo/main.tsx'], bundle: true, minify: true, target: ['es2020'], jsx: 'automatic', format: 'esm', outfile: 'site/app.js', define: { 'process.env.NODE_ENV': '"production"' }, legalComments: 'eof' });
 await cp('demo/index.html', 'site/index.html');
+await build({ entryPoints: ['demo/gallery.tsx'], bundle: true, minify: true, target: ['es2020'], jsx: 'automatic', format: 'esm', outfile: 'site/gallery.js', define: { 'process.env.NODE_ENV': '"production"' }, legalComments: 'eof' });
+const { readFile, writeFile } = await import('node:fs/promises');
+await writeFile('site/gallery.html', (await readFile('demo/index.html', 'utf8')).replaceAll('./app.', './gallery.').replace('AlignMe — Your personal growth desktop', 'Classic Web Desktop — Component gallery'));

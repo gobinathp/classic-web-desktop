@@ -1,0 +1,87 @@
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+async function openApp(page: import('@playwright/test').Page, name: string) {
+  await page.getByRole('button', { name: 'AlignMe', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Start applications' }).getByRole('button', { name, exact: true }).click();
+}
+test('AlignMe goals, linked actions and session state survive window teardown', async ({ page }) => {
+  const errors: string[] = [], requests: string[] = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('request', r => { if (!r.url().startsWith('http://127.0.0.1:4173/')) requests.push(r.url()); });
+  await page.goto('/');
+  await expect(page.getByRole('region', { name: 'AlignMe growth workspace' })).toBeVisible();
+  await page.screenshot({ path: 'test-results/alignme-desktop.jpg', quality: 85 });
+  await openApp(page, 'Goals');
+  await page.getByRole('button', { name: '+ New goal', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Create a goal', exact: true });
+  await dialog.getByRole('button', { name: 'Save goal' }).click();
+  await expect(dialog.getByRole('alert')).toContainText('Add a goal');
+  await dialog.getByRole('textbox', { name: 'Goal title' }).fill('Finish my GIS portfolio');
+  await dialog.getByRole('textbox', { name: 'Measurable outcome' }).fill('Publish three case studies.');
+  await dialog.getByRole('button', { name: 'Save goal' }).click();
+  await expect(page.getByRole('heading', { name: 'Finish my GIS portfolio' })).toBeVisible();
+  await page.getByRole('button', { name: 'Update goal: Finish my GIS portfolio' }).click();
+  await page.getByRole('slider', { name: /Progress/ }).focus(); await page.keyboard.press('End');
+  await page.getByRole('button', { name: 'Save goal', exact: true }).click();
+  await page.getByRole('button', { name: 'Close Goals', exact: true }).click();
+  await openApp(page, 'Goals');
+  await page.getByRole('searchbox', { name: 'Search goals' }).fill('GIS portfolio');
+  await expect(page.locator('.am-goal-card')).toHaveCount(1);
+  await expect(page.locator('.am-goal-card')).toContainText('Completed');
+  await openApp(page, 'Today');
+  await page.getByRole('textbox', { name: 'New action', exact: true }).fill('Write the introduction');
+  await page.getByRole('combobox', { name: 'Connect to a goal' }).selectOption({ label: 'Finish my GIS portfolio' });
+  await page.getByRole('button', { name: 'Add to today' }).click();
+  await page.getByRole('checkbox', { name: 'Write the introduction' }).check();
+  await page.getByRole('button', { name: 'Minimize Today', exact: true }).click();
+  await openApp(page, 'Today');
+  await expect(page.getByRole('checkbox', { name: 'Write the introduction' })).toBeChecked();
+  expect(errors).toEqual([]); expect(requests).toEqual([]);
+});
+test('habit tracking, reflection, planner and preferences are connected', async ({ page }) => {
+  await page.goto('/'); await openApp(page, 'Habits');
+  const today = page.getByRole('button', { name: /^Learn for 20 minutes on/ }).last();
+  await today.click(); await expect(today).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('textbox', { name: 'New habit' }).fill('Read ten pages');
+  await page.getByRole('button', { name: 'Add habit', exact: true }).click();
+  await expect(page.getByRole('rowheader', { name: 'Read ten pages' })).toBeVisible();
+  await openApp(page, 'Weekly review');
+  await expect(page.locator('[data-window="review"] .am-metrics')).toContainText('12');
+  await page.getByRole('textbox', { name: 'What worked? What will you change?' }).fill('A small practice session made a difference.');
+  await page.getByRole('button', { name: 'Keep reflection' }).click();
+  await page.getByRole('button', { name: 'Close Weekly review', exact: true }).click();
+  await openApp(page, 'Weekly review');
+  await expect(page.getByRole('textbox', { name: 'What worked? What will you change?' })).toHaveValue('A small practice session made a difference.');
+  await openApp(page, 'Planning assistant');
+  await expect(page.getByText('Template-based preview', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Suggest next steps' }).click();
+  await page.getByRole('button', { name: 'Add action', exact: true }).first().click();
+  await expect(page.getByRole('button', { name: 'Added to today' })).toBeDisabled();
+  await openApp(page, 'Today');
+  await expect(page.getByRole('checkbox', { name: /Define the first measurable milestone/ })).toBeVisible();
+  await openApp(page, 'Preferences');
+  await page.getByRole('textbox', { name: 'Display name' }).fill('Maya');
+  await page.getByRole('button', { name: 'Save preferences' }).click();
+  await openApp(page, 'My overview');
+  await expect(page.getByText('Welcome, Maya. Make room for what matters.')).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('Welcome, Gobinath. Make room for what matters.')).toBeVisible();
+});
+test('AlignMe accessibility and mobile window containment', async ({ page }) => {
+  await page.goto('/');
+  const violations: unknown[] = [];
+  for (const [name, id] of [['My overview', 'overview'], ['Goals', 'goals'], ['Today', 'today'], ['Habits', 'habits'], ['Weekly review', 'review'], ['Planning assistant', 'planner'], ['Preferences', 'preferences']]) {
+    await openApp(page, name);
+    const result = await new AxeBuilder({ page }).include('[data-window="' + id + '"]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    violations.push(...result.violations);
+  }
+  expect(violations).toEqual([]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openApp(page, 'Goals');
+  const box = await page.locator('[data-window="goals"]').boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0); expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  await page.getByRole('button', { name: '+ New goal', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Create a goal', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.screenshot({ path: 'test-results/alignme-mobile.png' });
+});

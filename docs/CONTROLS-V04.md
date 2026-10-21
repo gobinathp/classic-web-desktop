@@ -2,7 +2,7 @@
 
 Twelve additional controls, with no additional runtime dependencies. These are lightweight implementations with the scope below, not feature parity with any commercial suite.
 
-Open **Start → New in v0.4** in the demo. Collections, Actions, and Layout & dialogs demonstrate every new control and show local results. Existing components remain in Component studio.
+Open **Start → New in v0.4** in the component gallery (`gallery.html`). Collections, Actions, and Layout & dialogs demonstrate every new control and show local results. Existing components remain in Component studio.
 
 ## Imports
 
