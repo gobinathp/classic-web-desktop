@@ -8,7 +8,7 @@ A lightweight **React + TypeScript desktop and component toolkit** with classic 
 
 Our principles: keep the familiar desktop aesthetic, prioritize safe defaults, avoid unnecessary dependencies, and make the interface practical for modest hardware running maintained browsers.
 
-**Early release · v0.4.1 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
+**Early release · v0.4.2 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
 
 ![AlignMe personal growth desktop](docs/alignme.jpg)
 
@@ -34,7 +34,7 @@ The npm name `@gobinathp/classic-web-desktop` is **proposed, not yet published o
 npm ci
 npm pack
 # In your React project:
-npm install /path/to/gobinathp-classic-web-desktop-0.4.1.tgz
+npm install /path/to/gobinathp-classic-web-desktop-0.4.2.tgz
 ```
 
 ```tsx
@@ -157,3 +157,9 @@ ListView, PredefinedDialog (alert/confirm/prompt), Splitter, Timeline, ButtonGro
 ## AlignMe product demo
 
 The main demo turns the toolkit into a goals-and-habits workspace: create goals, plan actions, track habits, review progress and keep a reflection. Saved session state is shared across desktop windows. The planning assistant uses clearly labelled templates, not a live AI service. Reload resets the sample data. [Demo scope and architecture](docs/ALIGNME-DEMO.md). The component demonstrations remain available at `gallery.html`.
+
+## HDT-PhytoTB research POC
+
+[Open the research desktop](https://gobinathp.github.io/classic-web-desktop/phytotb.html). Six connected apps demonstrate a target/compound catalogue, evidence network, expression heatmap, compound comparison and exportable notebook. Every research record is synthetic; no measured results or treatment recommendations are included. [Scope, APIs and data requirements](docs/PHYTO-TB.md).
+
+Three optional reusable components — `RelationshipGraph`, `NumericHeatmap`, and `ComparisonTable` — are available from `/research`, with `/research.css`. They add no runtime dependencies and are not loaded by the root entry or existing demos.

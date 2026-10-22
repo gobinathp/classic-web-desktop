@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2
+
+- Add HDT-PhytoTB research desktop POC at `phytotb.html` using explicitly synthetic records.
+- Add optional `/research` components: bounded relationship graph, numeric heatmap and comparison table.
+- Connect catalogue selection, graph focus, comparison and session notebook with JSON export.
+- Add package and browser checks for research views, missing values, escaped text and accessibility.
+
+
 ## 0.4.1 — 2026-10-21
 
 - Replace the generic landing demo with an interactive AlignMe desktop for goals, actions, habits, reflection and guided planning.

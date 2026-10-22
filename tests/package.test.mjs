@@ -49,3 +49,14 @@ for (const [format, root, controls] of [['ESM', esmRoot, esmControls], ['CommonJ
     assert.match(html, /Record 1</); assert.doesNotMatch(html, /Record 2</);
   });
 }
+
+for (const [format, research] of [['ESM', await import('../dist/research.js')], ['CommonJS', require('../dist/research.cjs')]]) {
+  test(`${format}: research views bound output, escape labels and preserve missing values`, () => {
+    const matrix = render(h(research.NumericHeatmap, { label: 'Evidence', rows: [{ id: 'a', label: '<script>x</script>' }, { id: 'b', label: 'Hidden row' }], columns: [{ id: 's', label: 'Study' }], values: [[null], [0]], maxRows: 1 }));
+    assert.match(matrix, /Not available/); assert.match(matrix, /&lt;script&gt;/); assert.doesNotMatch(matrix, /Hidden row|<script>/);
+    const graph = render(h(research.RelationshipGraph, { label: 'Links', nodes: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }], edges: [{ id: 'e', source: 'a', target: 'b', label: 'Excluded edge' }], maxNodes: 1 }));
+    assert.doesNotMatch(graph, /Excluded edge|NaN/); assert.match(graph, /1 nodes · 0 links/);
+    const comparison = render(h(research.ComparisonTable, { label: 'Compare', columns: [{ id: 'a', label: 'A' }], rows: [{ id: 'r', label: 'Zero', values: { a: 0 } }, { id: 'm', label: 'Missing', values: {} }] }));
+    assert.match(comparison, /<td>0<\/td>/); assert.match(comparison, /Not available/);
+  });
+}

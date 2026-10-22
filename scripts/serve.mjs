@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-const files = new Map([['/gallery.html', ['site/gallery.html', 'text/html']], ['/gallery.js', ['site/gallery.js', 'text/javascript']], ['/gallery.css', ['site/gallery.css', 'text/css']], ['/', ['site/index.html', 'text/html']], ['/index.html', ['site/index.html', 'text/html']], ['/app.js', ['site/app.js', 'text/javascript']], ['/app.css', ['site/app.css', 'text/css']]]);
+const files = new Map([['/phytotb.html', ['site/phytotb.html', 'text/html']], ['/phytotb.js', ['site/phytotb.js', 'text/javascript']], ['/phytotb.css', ['site/phytotb.css', 'text/css']], ['/gallery.html', ['site/gallery.html', 'text/html']], ['/gallery.js', ['site/gallery.js', 'text/javascript']], ['/gallery.css', ['site/gallery.css', 'text/css']], ['/', ['site/index.html', 'text/html']], ['/index.html', ['site/index.html', 'text/html']], ['/app.js', ['site/app.js', 'text/javascript']], ['/app.css', ['site/app.css', 'text/css']]]);
 createServer(async (req, res) => {
   const entry = files.get(new URL(req.url, 'http://localhost').pathname);
   if (!entry) { res.writeHead(404); res.end('Not found'); return; }

@@ -1,6 +1,6 @@
 {
   "name": "@gobinathp/classic-web-desktop",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Lightweight React desktop and component toolkit with classic styling, modern controls, TypeScript, and no extra runtime dependencies.",
   "type": "module",
   "license": "MIT",
@@ -38,7 +38,13 @@
       "import": "./dist/controls.js",
       "require": "./dist/controls.cjs"
     },
-    "./controls.css": "./dist/controls.css"
+    "./controls.css": "./dist/controls.css",
+    "./research": {
+      "types": "./dist/research.d.ts",
+      "import": "./dist/research.js",
+      "require": "./dist/research.cjs"
+    },
+    "./research.css": "./dist/research.css"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

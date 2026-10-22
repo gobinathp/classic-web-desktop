@@ -1,4 +1,4 @@
-# Validation — v0.4.1 — 2026-10-21
+# Validation — v0.4.2 — 2026-10-22
 
 Local production build, Node 24.19.0, npm 11.9.0, headless Chromium 153.0.8010.0.
 
@@ -6,8 +6,8 @@ Local production build, Node 24.19.0, npm 11.9.0, headless Chromium 153.0.8010.0
 | --- | --- |
 | TypeScript strict check and declaration emission | Passed |
 | Window-state tests | 7 passed |
-| Packaged ESM/CommonJS configuration and escaping tests | 6 passed |
-| Browser integration tests | 20 passed |
+| Packaged ESM/CommonJS configuration and escaping tests | 8 passed |
+| Browser integration tests | 23 passed |
 | Automated accessibility | No violations reported for selected WCAG 2 A/AA and 2.1 A/AA rules in five Component studio categories and the sample modal |
 | Window lifecycle | Drag/resize/maximize, keyboard controls, viewport clamping, 30 open/close cycles returning DOM count to baseline |
 | Modern controls | Keyboard tabs, form validation semantics, switch state, inactive content cleanup, modal focus wrap/restoration, menu navigation, popover Escape, capped notifications, collapsed trees and sortable tables |
@@ -40,8 +40,14 @@ Visual review regressions: overlay bounding boxes inside window content, tooltip
 
 All twelve new controls exercised in four additional browser scenarios: paginated selection, native multi-select, tag selection/removal, action-group navigation, split-button actions, context menu mouse/keyboard/touch fallback, rating keys, reduced-motion Spinner, Splitter pointer/keyboard sizing in both orientations, three predefined dialog modes with prompt validation, AppBar action feedback and Timeline semantics. Additional axe checks cover all three new demo categories and prompt dialog. A 360px viewport checks context-menu containment. Packaged ESM and CommonJS tests verify the twelve exports and shared translation/resource limits.
 
-The controls entry including reused primitives is 6,236 gzip bytes of JS, plus 1,312 bytes of optional CSS (base styles additionally required). No new runtime dependencies were added. All 33 tests pass locally: seven model, six package and twenty browser tests.
+The controls entry including reused primitives is 6,236 gzip bytes of JS, plus 1,312 bytes of optional CSS (base styles additionally required). No new runtime dependencies were added. All 38 tests pass locally: seven model, eight package and twenty-three browser tests.
 
 ## AlignMe verification
 
 Three browser scenarios cover goal creation/editing and validation, linked tasks, state retention across window teardown, habit check-ins, weekly totals, reflection, template planner actions, preferences and reload reset. Automated axe scans cover all seven apps. A 390px viewport checks window containment and dialog dismissal. Desktop and mobile screenshots were visually reviewed. No external requests or page errors were observed in the tested AlignMe workflow.
+
+## HDT-PhytoTB verification
+
+Three browser scenarios verify catalogue filtering, record inspection and graph focus, shared compound selection, keyboard graph selection, missing expression-cell provenance, notebook state across close/reopen, JSON download with synthetic marker, reload reset, all six app views with axe A/AA scans, and 390px viewport containment. Desktop and mobile screenshots were visually reviewed. Two additional ESM/CommonJS package tests check bounded research output, escaped labels, absent graph endpoints and missing-versus-zero values. No external requests or page errors occurred in the tested research workflow.
+
+Optional research entry: 1,525 bytes gzip JS plus 545 bytes CSS, excluding React. POC JS including React: 81,254 bytes gzip. Existing root/library and AlignMe bundles are unchanged. These are transfer sizes, not RAM measurements.
