@@ -1,0 +1,66 @@
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+async function open(page: import('@playwright/test').Page) {
+  await page.getByRole('button', { name: 'PhytoTB', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Start applications' }).getByRole('button', { name: 'Structure viewers', exact: true }).click();
+}
+test('lazy 2D structures, invalid inputs, missing coordinates and cleanup', async ({ page }) => {
+  const requests: string[] = []; page.on('request', r => requests.push(r.url()));
+  await page.goto('/phytotb.html');
+  expect(requests.some(u => u.includes('/structure/'))).toBe(false);
+  await open(page);
+  const molecule = page.getByRole('region', { name: 'Molecule viewer', exact: true });
+  await expect(molecule.getByRole('status')).toContainText('Structure loaded · 3 atoms');
+  await expect(page.frameLocator('iframe[title="Molecule viewer 2D structure"]').locator('svg line').first()).toBeVisible();
+  expect(requests.some(u => u.includes('3Dmol-'))).toBe(false);
+  await page.getByLabel('Molecule example').selectOption('caffeine');
+  await expect(molecule.getByRole('status')).toContainText('Structure loaded · 14 atoms');
+  await expect(molecule.getByRole('button', { name: 'Load 3D' })).toBeDisabled();
+  await page.getByLabel('Molecule example').selectOption('invalid');
+  await expect(molecule.getByRole('alert')).toBeVisible();
+  await expect(molecule.locator('iframe')).toHaveCount(0);
+  await page.getByLabel('Molecule example').selectOption('missing');
+  await expect(molecule.getByRole('status')).toContainText('Structure unavailable');
+  await expect(molecule.getByRole('button', { name: 'View 2D' })).toBeDisabled();
+  await page.getByLabel('Molecule example').selectOption('ethanol');
+  await expect(molecule.getByRole('status')).toContainText('3 atoms');
+  await molecule.getByRole('button', { name: 'Unload structure' }).click();
+  await expect(page.locator('iframe')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Close Structure viewers', exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 }); await open(page);
+  await expect(molecule.getByRole('status')).toContainText('3 atoms');
+  await page.screenshot({ path: 'test-results/structure-mobile.png' });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  expect(requests.filter(u => !u.startsWith('http://127.0.0.1:4173/'))).toEqual([]);
+});
+test('3D molecule and protein render, controls work and frames release on close', async ({ page }) => {
+  await page.goto('/phytotb.html'); await open(page);
+  const molecule = page.getByRole('region', { name: 'Molecule viewer', exact: true });
+  await molecule.getByRole('button', { name: 'Load 3D' }).click();
+  await expect(molecule.getByRole('status')).toContainText('Structure loaded · 3 atoms');
+  const protein = page.getByRole('region', { name: 'Protein structure viewer', exact: true });
+  await protein.getByRole('button', { name: 'Load 3D' }).click();
+  await expect(protein.getByRole('status')).toContainText('Structure loaded · 327 atoms');
+  const canvas = page.frameLocator('iframe[title="Protein structure viewer 3D structure"]').locator('canvas');
+  const before = await canvas.screenshot();
+  await protein.getByRole('button', { name: 'Rotate right' }).focus(); await page.keyboard.press('Enter');
+  expect((await canvas.screenshot()).equals(before)).toBe(false);
+  await protein.getByLabel('Representation').selectOption('stick');
+  await protein.getByRole('button', { name: 'Zoom in' }).click();
+  await protein.getByRole('button', { name: 'Reset view' }).click();
+  await protein.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'test-results/structure-protein.png' });
+  await expect(protein.locator('iframe')).toHaveCount(1);
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze(); expect(axe.violations).toEqual([]);
+  await page.getByRole('button', { name: 'Minimize Structure viewers', exact: true }).click();
+  await expect(page.locator('iframe')).toHaveCount(0);
+  await open(page); await expect(molecule.getByRole('status')).toContainText('3 atoms');
+  await expect(protein.locator('iframe')).toHaveCount(0);
+});
+test('WebGL failure has an actionable error and releases the frame', async ({ page }) => {
+  await page.addInitScript(() => { const original = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function(type: string, ...args: unknown[]) { if (type.includes('webgl')) return null; return original.apply(this, [type, ...args] as never); } as typeof original; });
+  await page.goto('/phytotb.html'); await open(page);
+  const protein = page.getByRole('region', { name: 'Protein structure viewer', exact: true });
+  await protein.getByRole('button', { name: 'Load 3D' }).click();
+  await expect(protein.getByRole('alert')).toContainText('WebGL is unavailable'); await expect(protein.locator('iframe')).toHaveCount(0);
+});

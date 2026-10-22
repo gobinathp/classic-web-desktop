@@ -60,3 +60,12 @@ for (const [format, research] of [['ESM', await import('../dist/research.js')], 
     assert.match(comparison, /<td>0<\/td>/); assert.match(comparison, /Not available/);
   });
 }
+
+for (const [format, structures] of [['ESM', await import('../dist/structures.js')], ['CommonJS', require('../dist/structures.cjs')]]) {
+  test(`${format}: optional structure viewers render on server without graphics engines`, () => {
+    const props = { title: 'Preview <script>', description: 'Supplied data', provenance: 'Source pending', rendererUrl: '/structure/renderer.html' };
+    const html = render(h(structures.MoleculeViewer, props)) + render(h(structures.ProteinStructureViewer, props));
+    assert.match(html, /Structure unavailable/); assert.match(html, /Preview &lt;script&gt;/);
+    assert.doesNotMatch(html, /<iframe|<script|<canvas/);
+  });
+}

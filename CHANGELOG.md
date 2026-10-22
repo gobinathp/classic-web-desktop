@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.3
+
+- Add optional MoleculeViewer and ProteinStructureViewer with SMILES/SDF/PDB rendering, provenance and error states.
+- Bundle pinned SmilesDrawer and 3Dmol engines as on-demand assets in lifecycle-isolated frames.
+- Add keyboard rotation, zoom, reset, representation controls, input budgets and unload handling.
+- Add independent structure examples to the research desktop, including sourced PDB 1CRN.
+- Add rendering, cleanup, WebGL-failure, mobile and server-import checks.
+
 ## 0.4.2
 
 - Add HDT-PhytoTB research desktop POC at `phytotb.html` using explicitly synthetic records.

@@ -8,7 +8,7 @@ A lightweight **React + TypeScript desktop and component toolkit** with classic 
 
 Our principles: keep the familiar desktop aesthetic, prioritize safe defaults, avoid unnecessary dependencies, and make the interface practical for modest hardware running maintained browsers.
 
-**Early release · v0.4.2 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
+**Early release · v0.4.3 · MIT** — not affiliated with Sencha or Ext JS. No Ext JS code, logos, or images are included.
 
 ![AlignMe personal growth desktop](docs/alignme.jpg)
 
@@ -34,7 +34,7 @@ The npm name `@gobinathp/classic-web-desktop` is **proposed, not yet published o
 npm ci
 npm pack
 # In your React project:
-npm install /path/to/gobinathp-classic-web-desktop-0.4.2.tgz
+npm install /path/to/gobinathp-classic-web-desktop-0.4.3.tgz
 ```
 
 ```tsx
@@ -163,3 +163,7 @@ The main demo turns the toolkit into a goals-and-habits workspace: create goals,
 [Open the research desktop](https://gobinathp.github.io/classic-web-desktop/phytotb.html). Six connected apps demonstrate a target/compound catalogue, evidence network, expression heatmap, compound comparison and exportable notebook. Every research record is synthetic; no measured results or treatment recommendations are included. [Scope, APIs and data requirements](docs/PHYTO-TB.md).
 
 Three optional reusable components — `RelationshipGraph`, `NumericHeatmap`, and `ComparisonTable` — are available from `/research`, with `/research.css`. They add no runtime dependencies and are not loaded by the root entry or existing demos.
+
+## Optional molecular structure viewers
+
+`MoleculeViewer` (SMILES 2D / MOL-SDF 3D) and `ProteinStructureViewer` (PDB 3D) are available from `/structures`. Open **PhytoTB → Structure viewers** in the research demo. Supply data and provenance, and host the bundled renderer assets as documented in the [integration guide](docs/STRUCTURE-VIEWERS.md). Third-party engines load on demand; core components retain their existing dependency and size profile.

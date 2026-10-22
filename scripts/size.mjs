@@ -1,7 +1,7 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
-const budgets = { 'dist/research.js': 5000, 'dist/research.css': 1500, 'site/phytotb.js': 110000, 'dist/index.js': 14000, 'dist/desktop.js': 7000, 'dist/components.js': 8000, 'dist/styles.css': 8000, 'dist/desktop.css': 3500, 'dist/components.css': 4500, 'dist/controls.js': 9000, 'dist/controls.css': 2000, 'site/app.js': 110000, 'site/gallery.js': 110000 };
+const budgets = { 'dist/structures.js': 6000, 'dist/structures.css': 1500, 'dist/research.js': 5000, 'dist/research.css': 1500, 'site/phytotb.js': 110000, 'dist/index.js': 14000, 'dist/desktop.js': 7000, 'dist/components.js': 8000, 'dist/styles.css': 8000, 'dist/desktop.css': 3500, 'dist/components.css': 4500, 'dist/controls.js': 9000, 'dist/controls.css': 2000, 'site/app.js': 110000, 'site/gallery.js': 110000 };
 console.log('JS budgets include the shared configuration module, excluding React.');
 let failed = false;
 for (const [file, budget] of Object.entries(budgets)) {
@@ -17,3 +17,8 @@ const minimal = await build({ stdin: { contents: "export { Button } from './dist
 const minimalGzip = gzipSync(minimal.outputFiles[0].contents).length;
 console.log(`Button-only tree-shaken JS: ${minimalGzip} bytes gzip (budget 1000, excluding React/CSS)`);
 if (minimalGzip > 1000) process.exitCode = 1;
+
+const engineFiles = (await readdir('dist/structure/chunks')).filter(name => name.endsWith('.js'));
+const engineBytes = (await Promise.all(engineFiles.map(name => readFile('dist/structure/chunks/' + name)))).reduce((sum, data) => sum + gzipSync(data).length, 0);
+console.log(`Optional on-demand structure engines: ${engineBytes} bytes gzip (combined budget 250000)`);
+if (engineBytes > 250000) process.exitCode = 1;
